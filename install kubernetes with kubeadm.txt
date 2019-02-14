@@ -1,0 +1,29 @@
+Docker:
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update
+sudo apt-get install docker-ce
+sudo systemctl enable docker
+
+Kubernetes:
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
+sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+apt-get update
+apt-get install -y kubeadm kubectl kubelet kubernetes-cni
+
+sudo swapoff -a
+
+sudo hostnamectl set-hostname kubernetes-master   #Eller hvilket andet hostname der nu skal til ...
+
+#Next, as the Kubernetes master node initialization output suggested execute the bellow commands as a regular user to start using Kubernetes cluster:
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+#Flannel netværk
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+
+Find join kommandoen igen
+sudo kubeadm token create --print-join-command

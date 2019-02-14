@@ -1,0 +1,11 @@
+#Add this to the end of sudo nano /etc/haproxy/haproxy.cfg
+
+frontend firstbalance
+     bind 192.168.1.20:80
+     option forwardfor
+     default_backend nodes
+
+backend nodes
+     server node1 10.95.215.175
+     server node2 10.95.215.152
+     server node3 10.95.215.216
