@@ -25,14 +25,13 @@ Vagrant.configure("2") do |config|
       config.vm.provider "hyperv" do |hv|
         hv.vmname = "vagrantk8s_m1#{number}"
       end
-      # node.vm.provision "shell", path: "k8sinstall_all.sh", run: "once"
-      # node.vm.provision "shell", path: "k8sinstall_master.sh", run: "once"
-
       node.trigger.after :up do |trigger|
         trigger.info = "Running after up scripts"
         trigger.run = { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_m1#{number}" }
         #Master nodes get IP address segments from 11 and up
         trigger.run_remote = { path: "scripts/configure-networking.sh", args: "1#{number}" }
+        trigger.run_remote = { path: "scripts/k8sinstall_all.sh" }
+        trigger.run_remote = { path: "scripts/k8sinstall_master.sh" }
       end
     end
   end
@@ -45,15 +44,13 @@ Vagrant.configure("2") do |config|
       config.vm.provider "hyperv" do |hv|
         hv.vmname = "vagrantk8s_ln2#{number}"
       end
-
-      #node.vm.provision "shell", path: "k8sinstall_all.sh", run: "once"
-      #node.vm.provision "shell", path: "k8sinstall_node.sh", run: "once"
-
       node.trigger.after :up do |trigger|
         trigger.info = "Running after up scripts"
         trigger.run = { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_ln2#{number}" }
         #Linux nodes get IP address segments from 21 and up
         trigger.run_remote = { path: "scripts/configure-networking.sh", args: "2#{number}" }
+        trigger.run_remote = { path: "scripts/k8sinstall_all.sh" }
+        trigger.run_remote = { path: "scripts/k8sinstall_node.sh" }
       end
     end
   end
@@ -68,13 +65,15 @@ Vagrant.configure("2") do |config|
       config.vm.provider "hyperv" do |hv|
         hv.vmname = "vagrantk8s_wn3#{number}"
       end
-      node.vm.provision "file", source: "WindowsServerNodeSetup.ps1", destination: "c:/temp/WindowsServerNodeSetup.ps1"
+      node.vm.provision "file", source: "scripts/WindowsServerNodeSetup.ps1", destination: "c:/temp/WindowsServerNodeSetup.ps1"
       node.vm.provision "file", source: "daemon.json", destination: "c:/programdata/docker/config/daemon.json"
 
       node.trigger.after :up do |trigger|
         trigger.info = "Running after up scripts"
         trigger.run = { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_wn3#{number}" }
-        trigger.run_remote = { path: "scripts/create-hypervguestnetwork.ps1", args: "3#{number}" }  #Windows machines get IP address segments from 31 and up
+        #Windows machines get IP address segments from 31 and up
+        trigger.run_remote = { path: "scripts/create-hypervguestnetwork.ps1", args: "3#{number}" }
+        trigger.run_remote = { path: "scripts/WindowsServerNodeSetup.ps1" }
       end
     end
   end
@@ -87,8 +86,17 @@ Vagrant.configure("2") do |config|
     config.vm.provider "hyperv" do |hv|
       hv.vmname = "vagrantk8s_DC"
     end
+
+    node.trigger.after :up do |trigger|
+      trigger.info = "Running after up scripts"
+      trigger.run = { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_dc" }
+      #Windows machines get IP address segments from 31 and up
+      trigger.run_remote = { path: "scripts/create-hypervguestnetwork.ps1", args: "40" }
+    end
     # node.vm.hostname = "dc"
   end
 end
 
 #TODO:  set name of other servers in hostfile. Or set them up in the dc dns.
+#TODO:  dns for dc?
+#TODO:  enroll windows servers in domain
