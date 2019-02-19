@@ -30,8 +30,8 @@ Vagrant.configure("2") do |config|
         trigger.run = { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_m1#{number}" }
         #Master nodes get IP address segments from 11 and up
         trigger.run_remote = { path: "scripts/configure-networking.sh", args: "1#{number}" }
-        trigger.run_remote = { path: "scripts/k8sinstall_all.sh" }
         trigger.run_remote = { path: "scripts/k8sinstall_master.sh" }
+        trigger.run_remote = { path: "scripts/k8sinstall_all.sh" }
       end
     end
   end
