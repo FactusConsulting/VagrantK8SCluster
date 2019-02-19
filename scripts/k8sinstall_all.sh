@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-ECHO "In k8sInstall_all.sh"
-ECHO "Updating all packages"
+echo "In k8sInstall_all.sh"
+echo "Updating all packages"
 
 #Initial update
 sudo apt purge '^hplip'
@@ -12,7 +12,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -yq
 sudo apt-get dist-upgrade -y
 
 #Docker:
-ECHO "Installing Docker"
+echo "Installing Docker"
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 sudo apt-get update
@@ -21,7 +21,7 @@ sudo systemctl enable docker
 sudo systemctl start docker
 
 #Kubernetes:
-ECHO "Installing Kubernetes"
+echo "Installing Kubernetes"
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 sudo apt-get update
