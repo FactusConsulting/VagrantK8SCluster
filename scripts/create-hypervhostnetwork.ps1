@@ -33,7 +33,7 @@ else {
 
 #Add new NIC card to Hyper-v Machine
 Write-Output "Adding new network adapter to the vagrant guest"
-$existingFixedIpAdapter = Get-VMnetworkadapter -vmname $vmName | where-object -property name -Like "fixedip " |Remove-VMNetworkAdapter
+$existingFixedIpAdapter = Get-VMnetworkadapter -vmname $vmName | where-object -property Name -Like "fixedip"
 if ($null -eq $existingFixedIpAdapter) {
     Write-Host "No existing NAT network adapter found for VM $vmName. Adding one"
     get-vm -Name $vmName | Stop-Vm -TurnOff

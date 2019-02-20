@@ -15,23 +15,31 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.network "private_network", bridge: "Default Switch"
-  config.vm.synced_folder ".", "/vagrant", disabled: false,  #Enable and set username pw if you dont want to get prompted for each machine up
+  config.vm.synced_folder ".", "/vagrant", disabled: true,  #Enable and set username pw if you dont want to get prompted for each machine up
                                            smb_password: ENV["PW"], smb_username: ENV["USERNAME"]
   # Masters
   (1..3).each do |number|
     config.vm.define "m#{number}" do |node|
-      node.vm.box = "generic/ubuntu1804"
+      node.vm.box = "bento/ubuntu-18.04"
       node.vm.hostname = "m#{number}"
       config.vm.provider "hyperv" do |hv|
         hv.vmname = "vagrantk8s_m1#{number}"
       end
+
+      node.vm.provision "configure-networking", type: "shell", path: "scripts/configure-networking.sh", args: "1#{number}", run: "never"
+      node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
+      node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
+      node.vm.provision "bootstrap", type: "shell", run: "never" do |s|
+        s.inline = "echo hello"
+      end
+
       node.trigger.after :up do |trigger|
         trigger.info = "Running after up scripts"
         trigger.run = { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_m1#{number}" }
         #Master nodes get IP address segments from 11 and up
-        trigger.run_remote = { path: "scripts/configure-networking.sh", args: "1#{number}" }
-        trigger.run_remote = { path: "scripts/k8sinstall_master.sh" }
-        trigger.run_remote = { path: "scripts/k8sinstall_all.sh" }
+        # trigger.run_remote = { path: "scripts/configure-networking.sh", args: "1#{number}" }
+        # trigger.run_remote = { path: "scripts/k8sinstall_master.sh" }
+        # trigger.run_remote = { path: "scripts/k8sinstall_all.sh" }
       end
     end
   end
