@@ -21,8 +21,8 @@ Vagrant.configure("2") do |config|
 
   config.vm.network "private_network", bridge: "Default Switch"
   config.vm.synced_folder ".", "/vagrant", type: "smb",
-                                           smb_host: "192.168.10.1",
-                                           disabled: false,  #Enable and set username pw if you dont want to get prompted for each machine up
+                                           #smb_host: "192.168.10.1",
+                                           disabled: true,  #Enable and set username pw if you dont want to get prompted for each machine up
                                            smb_password: ENV["PW"], smb_username: ENV["USERNAME"]
   # Masters
   (1..3).each do |number|
@@ -33,16 +33,15 @@ Vagrant.configure("2") do |config|
         hv.vmname = "vagrantk8s_m1#{number}"
       end
 
-      node.vm.provision "configure-networking", type: "shell", path: "scripts/configure-networking.sh", args: "1#{number}", run: "never"
+      node.vm.provision "copy-netplanfile", type: "file", source: "scripts/temp/1#{number}-01-netcfg.yaml", destination: "/etc/netplan/01-netcfg.yaml", run: "never"
+      node.vm.provision "apply-netplan", type: "shell", inline: "sudo netplan apply", run: "never"
       node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
       node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
-      node.vm.provision "bootstrap", type: "shell", run: "never" do |s|
-        s.inline = "echo hello"
-      end
 
       node.trigger.after :up do |trigger|
         trigger.info = "Running after up scripts"
         trigger.run = { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_m1#{number}" }
+        trigger.run = { path: "scripts/create-netplanyamlfile.ps1", args: "1#{number}" }
       end
     end
   end
