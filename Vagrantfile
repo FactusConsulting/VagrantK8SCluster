@@ -20,7 +20,8 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.network "private_network", bridge: "Default Switch"
-  config.vm.synced_folder ".", "/vagrant", sbm_host: "192.168.10.1",
+  config.vm.synced_folder ".", "/vagrant", type: "smb",
+                                           smb_host: "192.168.10.1",
                                            disabled: false,  #Enable and set username pw if you dont want to get prompted for each machine up
                                            smb_password: ENV["PW"], smb_username: ENV["USERNAME"]
   # Masters

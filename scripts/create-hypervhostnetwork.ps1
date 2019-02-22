@@ -12,6 +12,7 @@ if ($null -eq $natswitch) {
     $adapter = Get-NetAdapter | Where-Object -Property InterfaceAlias -like "*$switchName*"
     New-NetIPAddress -IPAddress 192.168.10.1 -PrefixLength 24 -InterfaceIndex $adapter.ifIndex
     Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses ("1.0.0.1", "192.168.1.26")
+    Get-NetConnectionProfile -InterfaceIndex $adapter.ifIndex | Set-NetConnectionProfile -NetworkCategory Private
     Write-Output "New Hyper-v Vagrant nat switch $switchName is created"
 }
 else {
