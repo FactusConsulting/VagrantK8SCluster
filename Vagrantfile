@@ -33,16 +33,27 @@ Vagrant.configure("2") do |config|
         hv.vmname = "vagrantk8s_m1#{number}"
       end
 
-      node.vm.provision "copy-netplanfile", type: "file", source: "scripts/temp/1#{number}-01-netcfg.yaml", destination: "/etc/netplan/01-netcfg.yaml", run: "never"
+      node.vm.provision "copy-netplanfiletovagrant", type: "file", source: "scripts/temp/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
+      node.vm.provision "copy-netplanfile", type: "shell", inline: "sudo cp /home/vagrant/01-netcfg.yaml /etc/netplan", run: "never"
       node.vm.provision "apply-netplan", type: "shell", inline: "sudo netplan apply", run: "never"
       node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
+      node.vm.provision "copy-k8ssetupfiles", type: "file", source: "kubernetessetup", destination: "~/", run: "never"
       node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
 
-      node.trigger.after :up do |trigger|
-        trigger.info = "Running after up scripts"
-        trigger.run = { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_m1#{number}" }
-        trigger.run = { path: "scripts/create-netplanyamlfile.ps1", args: "1#{number}" }
-      end
+      # node.trigger.after :up do |trigger|
+      #   trigger.info = "Running after up scripts"
+      #   trigger.run = { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_m1#{number}" }
+      #   trigger.run = { path: "scripts/create-netplanyamlfile.ps1", args: "1#{number}" }
+      # end
+      node.trigger.after :up,
+        name: "add vmnetcard",
+        info: "adding vmnetcard",
+        run: { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_m1#{number}" }
+
+      node.trigger.after :up,
+        name: "create netplanfile",
+        info: "creatin netplanfile",
+        run: { path: "scripts/create-netplanyamlfile.ps1", args: "1#{number}" }
     end
   end
 
