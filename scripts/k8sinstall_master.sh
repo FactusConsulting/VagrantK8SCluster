@@ -41,7 +41,7 @@ kubectl get ds -n kube-system #Flannel Daemon set skal have nodeselector til
 #Ikke windows:
 #kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
-sudo kubeadm token create --print-join-command  > /vagrant/join_cmd.sh
+sudo kubeadm token create --print-join-command  > ~/join_cmd.sh
 
 ## use kubectl as non root user
 mkdir -p $HOME/.kube
