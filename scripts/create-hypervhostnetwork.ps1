@@ -14,6 +14,7 @@ $defaultAdapter | Disable-NetAdapter -Confirm:$false
 $defaultAdapter | Enable-NetAdapter
 Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Disable-NetAdapterBinding
 Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Enable-NetAdapterBinding
+Get-NetConnectionProfile -InterfaceIndex $defaultAdapter.ifIndex | Set-NetConnectionProfile -NetworkCategory Private
 Write-Host "Default switch config complete."
 
 Write-host "Checking for SMB 3.0 enabled"
@@ -23,6 +24,7 @@ if ($null -eq $smb) {
     Enable-WindowsOptionalFeature -Online -FeatureName SmbDirect
     Write-Host "SMB 3.0 is now enabled"
 }
+else { Write-Host "SMB3.0 is already enabled - continuing"}
 
 Write-Host "Creating new NAT Hyper-V network on your host, if it does not already exist"
 $switchName = "VagrantNatSwitch"

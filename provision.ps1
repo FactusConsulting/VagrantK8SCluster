@@ -2,7 +2,7 @@ vagrant destroy -f
 if ($null -eq $ENV:pw) {
     .\scripts\Set-Credentials.ps1
 }
-vagrant up m1
+vagrant up m1 --debug 2>&1 | Tee-Object -FilePath ".\vagrant.log"
 vagrant provision m1 --provision-with "copy-netplanfiletovagrant"
 vagrant provision m1 --provision-with "copy-netplanfile"
 vagrant provision m1 --provision-with "apply-netplan"
