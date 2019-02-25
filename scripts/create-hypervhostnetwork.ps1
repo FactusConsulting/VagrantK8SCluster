@@ -1,12 +1,28 @@
 
 Write-Host "Hello from $env:COMPUTERNAME"
 Write-Host "create-hypervhostnetwork.ps1 called"
+
+Write-Host "Testing if the Default Switch exists"
+$defaultAdapter = Get-Netadapter | Where-Object -Property Name -like "*Default Switch*"
+if ($null -eq $defaultAdapter) {
+    Write-Error "No Hyper-v switch 'Default Switch' is found. Restart the computer `
+    to recreate the default swithc and try again."
+}
+
+Write-Host "Default Switch found. Enabling and disabling the Hyper-v switch to ensure it is functional"
+$defaultAdapter | Disable-NetAdapter -Confirm:$false
+$defaultAdapter | Enable-NetAdapter
+Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Disable-NetAdapterBinding
+Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Enable-NetAdapterBinding
+
+Write-Host "Default switch config complete."
+
 Write-Host "Creating new NAT Hyper-V network on your host, if it does not already exist"
 
 $switchName = "VagrantNatSwitch"
 
-$natswitch = Get-VMSwitch | Where-Object -Property Name -like "*$switchName*"
-if ($null -eq $natswitch) {
+$natSwitch = Get-VMSwitch | Where-Object -Property Name -like "*$switchName*"
+if ($null -eq $natSwitch) {
     Write-Output "No Hyper-v switch VagrantNatSwitch is found"
     New-VMSwitch -SwitchName $switchName -SwitchType Internal
     $adapter = Get-NetAdapter | Where-Object -Property InterfaceAlias -like "*$switchName*"

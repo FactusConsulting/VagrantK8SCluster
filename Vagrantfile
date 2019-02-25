@@ -21,9 +21,9 @@ Vagrant.configure("2") do |config|
 
   config.vm.network "private_network", bridge: "Default Switch"
   config.vm.synced_folder ".", "/vagrant", type: "smb",
-                                           #smb_host: "192.168.10.1",
-                                           disabled: true,  #Enable and set username pw if you dont want to get prompted for each machine up
+                                           disabled: false,  #Enable and set username pw if you dont want to get prompted for each machine up
                                            smb_password: ENV["PW"], smb_username: ENV["USERNAME"]
+  #  mount_options: ["vers=3.0"]
   # Masters
   (1..3).each do |number|
     config.vm.define "m#{number}" do |node|
