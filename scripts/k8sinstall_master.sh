@@ -23,7 +23,7 @@ echo "Checking that kube-proxy Daemonset to RollingUpdate"
 kubectl get ds/kube-proxy -o go-template='{{.spec.updateStrategy.type}}{{"\n"}}' --namespace=kube-system
 
 echo "Set kube-proxy to only run on linux nodes"
-kubectl patch ds/kube-proxy --patch "$(cat kubernetessetup/node-selector-patch.yml)" -n=kube-system
+kubectl patch ds/kube-proxy --patch "$(cat /vagrant/kubernetessetup/node-selector-patch.yml)" -n=kube-system
 echo "Checking that kube-proxy has been set correctly to linux nodes"
 kubectl get ds -n kube-system  #Check for beta.kubernetes.io/os=linux under Node Selectors
 
@@ -33,15 +33,15 @@ sudo sysctl net.bridge.bridge-nf-call-iptables=1
 echo "Flannel network setup"
 kubectl apply -f kubernetessetup/kube-flannel.yml
 echo "Setting flannel network pod to only run on linux nodes"
-kubectl patch ds/kube-flannel-ds-amd64 --patch "$(cat kubernetessetup/node-selector-patch.yml)" -n=kube-system
-echo "Check that nodeselector has been set on the Flannel Daemn set"
+kubectl patch ds/kube-flannel-ds-amd64 --patch "$(cat /vagrant/kubernetessetup/node-selector-patch.yml)" -n=kube-system
+echo "Check that nodeselector has been set on the Flannel Daemon set"
 kubectl get pods --all-namespaces
 kubectl get ds -n kube-system #Flannel Daemon set skal have nodeselector til
 
 #Ikke windows:
 #kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
-sudo kubeadm token create --print-join-command  > ~/join_cmd.sh
+sudo kubeadm token create --print-join-command  > /vagrant/join_cmd.sh
 
 ## use kubectl as non root user
 mkdir -p $HOME/.kube

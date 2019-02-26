@@ -20,8 +20,10 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.network "private_network", bridge: "Default Switch"
+
+  # Currently disabled due to problems on laptops with wwan adapters.
   config.vm.synced_folder ".", "/vagrant", type: "smb",
-                                           disabled: false,  #Enable and set username pw if you dont want to get prompted for each machine up
+                                           disabled: true,  #Enable and set username pw if you dont want to get prompted for each machine up
                                            smb_password: ENV["PW"],
                                            smb_username: ENV["USERNAME"],
                                            mount_options: ["vers=3.0"]
@@ -34,11 +36,9 @@ Vagrant.configure("2") do |config|
         hv.vmname = "vagrantk8s_m1#{number}"
       end
 
-      node.vm.provision "copy-netplanfiletovagrant", type: "file", source: "scripts/temp/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
-      node.vm.provision "copy-netplanfile", type: "shell", inline: "sudo cp /home/vagrant/01-netcfg.yaml /etc/netplan", run: "never"
-      node.vm.provision "apply-netplan", type: "shell", inline: "sudo netplan apply", run: "never"
+      node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/temp/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
+      node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]}, #{ENV["PW"]}", run: "never"
       node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
-      node.vm.provision "copy-k8ssetupfiles", type: "file", source: "kubernetessetup", destination: "~/", run: "never"
       node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
 
       node.trigger.after :up,
@@ -48,7 +48,7 @@ Vagrant.configure("2") do |config|
 
       node.trigger.after :up,
         name: "create netplanfile",
-        info: "creatin netplanfile",
+        info: "creating netplan file",
         run: { path: "scripts/create-netplanyamlfile.ps1", args: "1#{number}" }
     end
   end
@@ -61,14 +61,21 @@ Vagrant.configure("2") do |config|
       config.vm.provider "hyperv" do |hv|
         hv.vmname = "vagrantk8s_ln2#{number}"
       end
-      node.trigger.after :up do |trigger|
-        trigger.info = "Running after up scripts"
-        trigger.run = { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_ln2#{number}" }
-        #Linux nodes get IP address segments from 21 and up
-        # trigger.run_remote = { path: "scripts/configure-networking.sh", args: "2#{number}" }
-        # trigger.run_remote = { path: "scripts/k8sinstall_all.sh" }
-        # trigger.run_remote = { path: "scripts/k8sinstall_node.sh" }
-      end
+
+      node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/temp/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
+      node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]}, #{ENV["PW"]}", run: "never", sensitive: true
+      node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
+      node.vm.provision "k8sinstall_llinuxnode", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
+
+      node.trigger.after :up,
+        name: "add vmnetcard",
+        info: "adding vmnetcard",
+        run: { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_ln2#{number}" }
+
+      node.trigger.after :up,
+        name: "create netplanfile",
+        info: "creating netplan file",
+        run: { path: "scripts/create-netplanyamlfile.ps1", args: "2#{number}" }
     end
   end
 
