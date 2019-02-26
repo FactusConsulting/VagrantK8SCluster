@@ -51,7 +51,7 @@ Vagrant.configure("2") do |config|
   # LinuxWorkers
   (1..3).each do |number|
     config.vm.define "ln#{number}" do |node|
-      node.vm.box = "generic/ubuntu1804"
+      node.vm.box = "bento/ubuntu-18.04"
       node.vm.hostname = "ln#{number}"
       config.vm.provider "hyperv" do |hv|
         hv.vmname = "vagrantk8s_ln2#{number}"
