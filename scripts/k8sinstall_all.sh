@@ -4,14 +4,11 @@ echo "In k8sInstall_all.sh"
 echo "Updating all packages"
 
 #Initial update
-# sudo apt purge '^hplip'
-# sudo apt install hplip-data hplip-gui -y
-
-
 export DEBIAN_FRONTEND=noninteractive
 export DEBIAN_PRIORITY=critical
 sudo -E apt-get -qy update
 sudo -E apt-get -qy -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" upgrade
+sudo -E apt-get -qy -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" dist-upgrade
 sudo -E apt-get -qy autoclean
 
 
