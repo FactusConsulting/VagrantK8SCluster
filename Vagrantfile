@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
         hv.vmname = "vagrantk8s_m1#{number}"
       end
 
-      node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/temp/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
+      node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/networkconfig/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
       node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]}, #{ENV["PW"]}", run: "never"
       node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
       node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
@@ -45,11 +45,6 @@ Vagrant.configure("2") do |config|
         name: "add vmnetcard",
         info: "adding vmnetcard",
         run: { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_m1#{number}" }
-
-      node.trigger.after :up,
-        name: "create netplanfile",
-        info: "creating netplan file",
-        run: { path: "scripts/create-netplanyamlfile.ps1", args: "1#{number}" }
     end
   end
 
@@ -62,7 +57,7 @@ Vagrant.configure("2") do |config|
         hv.vmname = "vagrantk8s_ln2#{number}"
       end
 
-      node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/temp/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
+      node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/networkconfig/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
       node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]}, #{ENV["PW"]}", run: "never", sensitive: true
       node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
       node.vm.provision "k8sinstall_linuxnode", type: "shell", path: "scripts/k8sinstall_node.sh", run: "never"
@@ -71,11 +66,6 @@ Vagrant.configure("2") do |config|
         name: "add vmnetcard",
         info: "adding vmnetcard",
         run: { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_ln2#{number}" }
-
-      node.trigger.after :up,
-        name: "create netplanfile",
-        info: "creating netplan file",
-        run: { path: "scripts/create-netplanyamlfile.ps1", args: "2#{number}" }
     end
   end
 
@@ -92,12 +82,15 @@ Vagrant.configure("2") do |config|
       node.vm.provision "config_windowsclient", type: "file", source: "scripts/WindowsServerNodeSetup.ps1", destination: "c:/temp/WindowsServerNodeSetup.ps1"
       node.vm.provision "copy_daemon.json", type: "file", source: "daemon.json", destination: "c:/programdata/docker/config/daemon.json"
 
-      node.trigger.after :up do |trigger|
-        trigger.info = "Running after up scripts"
-        trigger.run = { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_wn3#{number}" }
-        trigger.run_remote = { path: "scripts/create-hypervguestnetwork.ps1", args: "3#{number}" }
-        trigger.run_remote = { path: "scripts/WindowsServerNodeSetup.ps1" }
-      end
+      node.trigger.after :up,
+        name: "create hyperv host network",
+        info: "create hyperv  host network",
+        run: { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_wn3#{number}" }
+
+      node.trigger.after :up,
+        name: "Running after up scripts",
+        info: "Running after up scripts",
+        run_remote: { path: "scripts/WindowsServerNodeSetup.ps1" }
     end
   end
 
@@ -109,14 +102,17 @@ Vagrant.configure("2") do |config|
     config.vm.provider "hyperv" do |hv|
       hv.vmname = "vagrantk8s_DC"
     end
-
-    node.trigger.after :up do |trigger|
-      trigger.info = "Running after up scripts"
-      trigger.run = { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_dc" }
-      #Windows machines get IP address segments from 31 and up
-      trigger.run_remote = { path: "scripts/create-hypervguestnetwork.ps1", args: "40" }
-    end
     # node.vm.hostname = "dc"
+
+    node.trigger.after :up,
+      name: "create hyperv host network",
+      info: "create hyperv  host network",
+      run: { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_dc" }
+
+    node.trigger.after :up,
+      name: "Running after up scripts",
+      info: "Running after up scripts",
+      run_remote: { path: "scripts/WindowsServerNodeSetup.ps1", args: "40" }
   end
 end
 

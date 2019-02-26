@@ -3,10 +3,11 @@ param(
     $ipSegment
 )
 
-$inputFile = "scripts\01-netcfg.template.yaml"
+Write-Host "create-netplananyyamlfile called with ipsegment: $ipSegment"
+
+$inputFile = "01-netcfg.template.yaml"
 $findstring = '$ip$'
-$outputfile = "scripts\temp\$ipsegment-01-netcfg.yaml"
-if (!(Test-Path "scripts\temp")) {New-Item -ItemType Directory -Path .\scripts\temp }
+$outputfile = "$ipsegment-01-netcfg.yaml"
 
 (Get-Content $inputFile) | ForEach-Object {$_.replace($findString, $ipSegment)} | Set-Content $outputFile -Force
 (Get-Content $outputFile -Raw).Replace("`r`n","`n") | Set-Content $outputFile -Force

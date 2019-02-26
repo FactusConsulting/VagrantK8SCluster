@@ -15,5 +15,5 @@ vagrant provision m1 --provision-with "copy_netplanfiletovagrant","configure_gue
 # & vagrant provision m1 --provision-with "k8sinstall_all"
 # & vagrant provision m1 --provision-with "k8sinstall_master"
 
-
+vagrant up ln1
 vagrant provision ln1 --provision-with "copy_netplanfiletovagrant","configure_guestnetwork","k8sinstall_all","k8sinstall_linuxnode"
