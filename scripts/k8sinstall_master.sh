@@ -31,7 +31,7 @@ echo "Bridged IPv4 traffic to iptables chains when using Flannel."
 sudo sysctl net.bridge.bridge-nf-call-iptables=1
 
 echo "Flannel network setup"
-kubectl apply -f kubernetessetup/kube-flannel.yml
+kubectl apply -f /vagrant/kubernetessetup/kube-flannel.yml
 echo "Setting flannel network pod to only run on linux nodes"
 kubectl patch ds/kube-flannel-ds-amd64 --patch "$(cat /vagrant/kubernetessetup/node-selector-patch.yml)" -n=kube-system
 echo "Check that nodeselector has been set on the Flannel Daemon set"
