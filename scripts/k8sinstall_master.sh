@@ -12,7 +12,7 @@ sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/12
 #Next, as the Kubernetes master node initialization output suggested execute the bellow commands as a regular user to start using Kubernetes cluster:
 
 echo "Kubeadm completed. Copying config to be available to user and to host"
-sudo mkdir ~/.kube -p
+mkdir .kube -p
 sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config
 sudo chown $(id -u):$(id -g) ~/.kube/config
 #Get it locally with [Environment]::SetEnvironmentVariable("KUBECONFIG", "Local-Path-To-Config", "Machine")
