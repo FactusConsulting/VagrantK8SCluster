@@ -41,11 +41,6 @@ Vagrant.configure("2") do |config|
       node.vm.provision "copy-k8ssetupfiles", type: "file", source: "kubernetessetup", destination: "~/", run: "never"
       node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
 
-      # node.trigger.after :up do |trigger|
-      #   trigger.info = "Running after up scripts"
-      #   trigger.run = { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_m1#{number}" }
-      #   trigger.run = { path: "scripts/create-netplanyamlfile.ps1", args: "1#{number}" }
-      # end
       node.trigger.after :up,
         name: "add vmnetcard",
         info: "adding vmnetcard",
