@@ -12,9 +12,9 @@ sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/12
 #Next, as the Kubernetes master node initialization output suggested execute the bellow commands as a regular user to start using Kubernetes cluster:
 
 echo "Kubeadm completed. Copying config to be available to user and to host"
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
+sudo mkdir ~/.kube -p
+sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config
+sudo chown $(id -u):$(id -g) ~/.kube/config
 #Get it locally with [Environment]::SetEnvironmentVariable("KUBECONFIG", "Local-Path-To-Config", "Machine")
 
 #Fra MS
@@ -44,6 +44,6 @@ kubectl get ds -n kube-system #Flannel Daemon set skal have nodeselector til
 sudo kubeadm token create --print-join-command  > /vagrant/join_cmd.sh
 
 ## use kubectl as non root user
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
+mkdir -p ~/.kube
+sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config
+sudo chown $(id -u):$(id -g) ~/.kube/config
