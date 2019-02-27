@@ -42,7 +42,7 @@ Vagrant.configure("2") do |config|
       end
       node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/networkconfig/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "once"
       node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]}, #{ENV["PW"]}", run: "always"
-      node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
+      node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "once"
       node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
     end
   end

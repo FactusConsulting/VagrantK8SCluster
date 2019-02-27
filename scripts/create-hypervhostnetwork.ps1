@@ -2,6 +2,10 @@
 Write-Host "Hello from $env:COMPUTERNAME"
 Write-Host "create-hypervhostnetwork.ps1 called"
 
+if ($null -eq $ENV:pw) {
+    .\scripts\Set-Credentials.ps1
+}
+
 Write-Host "Testing if the Default Switch exists"
 $defaultAdapter = Get-Netadapter | Where-Object -Property Name -like "*Default Switch*"
 if ($null -eq $defaultAdapter) {
