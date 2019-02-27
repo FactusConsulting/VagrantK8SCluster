@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
     }
   end
 
-  config.trigger.before :up do |trigger|
+  config.trigger.before [:up, :reload, :resume] do |trigger|
     trigger.info = "Running before up scripts"
     trigger.run = { path: "scripts/create-hypervhostnetwork.ps1" }
   end
@@ -36,15 +36,14 @@ Vagrant.configure("2") do |config|
         hv.vmname = "vagrantk8s_m1#{number}"
       end
 
-      node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/networkconfig/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
-      node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]}, #{ENV["PW"]}", run: "never"
+      config.vm.provision :host_shell do |host_shell|
+        host_shell.abort_on_nonzero = true
+        host_shell.inline = "powershell.exe scripts/add-vmnetcard.ps1 vagrantk8s_m1#{number}"
+      end
+      node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/networkconfig/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "once"
+      node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]}, #{ENV["PW"]}", run: "always"
       node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
       node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
-
-      node.trigger.after :up,
-        name: "add vmnetcard",
-        info: "adding vmnetcard",
-        run: { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_m1#{number}" }
     end
   end
 
@@ -57,15 +56,14 @@ Vagrant.configure("2") do |config|
         hv.vmname = "vagrantk8s_ln2#{number}"
       end
 
+      config.vm.provision :host_shell do |host_shell|
+        host_shell.abort_on_nonzero = true
+        host_shell.inline = "powershell.exe scripts/add-vmnetcard.ps1 vagrantk8s_ln2#{number}"
+      end
       node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/networkconfig/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
       node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]}, #{ENV["PW"]}", run: "never", sensitive: true
       node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
       node.vm.provision "k8sinstall_linuxnode", type: "shell", path: "scripts/k8sinstall_node.sh", run: "never"
-
-      node.trigger.after :up,
-        name: "add vmnetcard",
-        info: "adding vmnetcard",
-        run: { path: "scripts/add-vmnetcard.ps1", args: "vagrantk8s_ln2#{number}" }
     end
   end
 
@@ -79,18 +77,13 @@ Vagrant.configure("2") do |config|
       config.vm.provider "hyperv" do |hv|
         hv.vmname = "vagrantk8s_wn3#{number}"
       end
+
+      config.vm.provision :host_shell do |host_shell|
+        host_shell.abort_on_nonzero = true
+        host_shell.inline = "powershell.exe scripts/create-hypervhostnetwork.ps1 vagrantk8s_wn3#{number}"
+      end
       node.vm.provision "config_windowsclient", type: "file", source: "scripts/WindowsServerNodeSetup.ps1", destination: "c:/temp/WindowsServerNodeSetup.ps1"
       node.vm.provision "copy_daemon.json", type: "file", source: "daemon.json", destination: "c:/programdata/docker/config/daemon.json"
-
-      node.trigger.after :up,
-        name: "create hyperv host network",
-        info: "create hyperv  host network",
-        run: { path: "scripts/create-hypervhostnetwork.ps1", args: "vagrantk8s_wn3#{number}" }
-
-      node.trigger.after :up,
-        name: "Running after up scripts",
-        info: "Running after up scripts",
-        run_remote: { path: "scripts/WindowsServerNodeSetup.ps1" }
     end
   end
 
