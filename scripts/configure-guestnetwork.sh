@@ -2,8 +2,11 @@ echo "Configuring networking on guest machine, and seting up /vagrant share"
 sudo cp /home/vagrant/01-netcfg.yaml /etc/netplan
 sudo netplan apply
 echo "Netplan applied. Ping host to check if working:"
-ping 192.168.10.1 -c 4
+ping 192.168.10.1 -c 10
 systemd-resolve --status
+
+sudo apt-get update
+sudo apt-get install ifupdown -y
 
 #Create a /vagrant share on the guest
 sudo mkdir /vagrant -p
@@ -14,3 +17,6 @@ grep -qF "//192.168.10.1" /etc/fstab || sudo echo "//192.168.10.1/vagrant /vagra
 sudo mount -a
 echo "/vagrant folder mounted. Running ls to check if works:"
 ls /vagrant
+
+echo "Ping host again to check if working:"
+ping 192.168.10.1 -c 4
