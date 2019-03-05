@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
     }
   end
 
-  config.vagrant.plugins = ["vagrant-host-shell"]
+  config.vagrant.plugins = ["vagrant-host-shell", "vagrant-reload"]
   config.vagrant.sensitive = ["Sharepassword", ENV["PW"]]
   # config.vm.network "private_network", bridge: "Default Switch"
   # config.vm.network "private_network", bridge: "VagrantNatSwitch"
@@ -34,9 +34,7 @@ Vagrant.configure("2") do |config|
   # Masters
   (1..3).each do |number|
     config.vm.define "m#{number}" do |node|
-      node.vm.box = "generic/ubuntu1810"
-      # node.vm.box = "bento/ubuntu-18.04"
-      # node.vm.box = "bento/ubuntu-18.10"
+      node.vm.box = "generic/ubuntu1804"
       node.vm.network "private_network", bridge: "VagrantNatSwitch"
       node.vm.hostname = "m#{number}"
       node.vm.provider "hyperv" do |hv|
@@ -48,16 +46,17 @@ Vagrant.configure("2") do |config|
         host_shell.inline = "powershell.exe scripts/add-vmnetcard.ps1 vagrantk8s_m1#{number}"
       end
       node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/networkconfig/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "once"
-      node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]}, #{ENV["PW"]}", run: "once"
-      # node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "once"
-      # node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
+      node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "once"
+      node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "once"
+      node.vm.provision :reload, run: "once"
+      node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
     end
   end
 
   # LinuxWorkers
   (1..3).each do |number|
     config.vm.define "ln#{number}" do |node|
-      node.vm.box = "bento/ubuntu-18.04"
+      node.vm.box = "generic/ubuntu1804"
       node.vm.network "private_network", bridge: "VagrantNatSwitch"
       node.vm.hostname = "ln#{number}"
       node.vm.provider "hyperv" do |hv|
@@ -69,8 +68,9 @@ Vagrant.configure("2") do |config|
         host_shell.inline = "powershell.exe scripts/add-vmnetcard.ps1 vagrantk8s_ln2#{number}"
       end
       node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/networkconfig/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
-      node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]}, #{ENV["PW"]}", run: "never", sensitive: true
+      node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "never", sensitive: true
       node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
+      node.vm.provision :reload, run: "once"
       node.vm.provision "k8sinstall_linuxnode", type: "shell", path: "scripts/k8sinstall_node.sh", run: "never"
     end
   end
