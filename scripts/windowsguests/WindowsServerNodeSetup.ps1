@@ -8,12 +8,12 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object
 Write-Host "Installing nuget provider"
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
 
-Write-Host "Installing Docker EE provider"
-Install-Module -Name DockerMsftProvider -Repository PSGallery -Force
+# Write-Host "Installing Docker EE provider"
+# Install-Module -Name DockerMsftProvider -Repository PSGallery -Force
 
-Write-Host "Installing Docker EE"
-Install-Package -Name Docker -ProviderName DockerMsftProvider -force
+# Write-Host "Installing Docker EE"
+# Install-Package -Name Docker -ProviderName DockerMsftProvider -force
 
-Copy-Item daemon.json c:\programdata\docker\config\
-start-service docker
+# Copy-Item daemon.json c:\programdata\docker\config\
+# start-service docker
 docker version

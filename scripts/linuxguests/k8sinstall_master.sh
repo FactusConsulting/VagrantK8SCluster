@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-sudo hostnamectl set-hostname master #Eller hvilket andet hostname der nu skal til ...
-
 echo "Setting swap to off"
 sudo swapoff -a
 

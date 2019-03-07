@@ -3,7 +3,6 @@ param(
     $ipSegment
 )
 
-
 Write-Host "Hello from $env:COMPUTERNAME"
 Write-Host "Hello from create-hypervguestnetwork.ps1 with parameter ipSegment: $ipSegment"
 #find the name and ifindex of the new switch
