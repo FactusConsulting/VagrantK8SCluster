@@ -49,7 +49,7 @@ Vagrant.configure("2") do |config|
       node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "once"
       node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "once"
       node.vm.provision :reload, run: "once"
-      node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "never"
+      node.vm.provision "k8sinstall_master", type: "shell", path: "scripts/k8sinstall_master.sh", run: "once"
     end
   end
 
@@ -67,11 +67,11 @@ Vagrant.configure("2") do |config|
         host_shell.abort_on_nonzero = true
         host_shell.inline = "powershell.exe scripts/add-vmnetcard.ps1 vagrantk8s_ln2#{number}"
       end
-      node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/networkconfig/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "never"
-      node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "never", sensitive: true
-      node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "never"
+      node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "scripts/networkconfig/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "once"
+      node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "once" #, sensitive: true
+      node.vm.provision "k8sinstall_all", type: "shell", path: "scripts/k8sinstall_all.sh", run: "once"
       node.vm.provision :reload, run: "once"
-      node.vm.provision "k8sinstall_linuxnode", type: "shell", path: "scripts/k8sinstall_node.sh", run: "never"
+      node.vm.provision "k8sinstall_linuxnode", type: "shell", path: "scripts/k8sinstall_node.sh", privileged: "true", run: "once"
     end
   end
 

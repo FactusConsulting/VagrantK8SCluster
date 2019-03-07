@@ -21,11 +21,9 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 sudo -E apt-get -qy update
 sudo -E apt-get -qy -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" install docker-ce=18.06.1~ce~3-0~ubuntu
-#sudo apt-get install -y docker-ce=18.06.1~ce~3-0~ubuntu
 sudo systemctl enable docker
 sudo systemctl start docker
 docker run hello-world
-
 
 # #Kubernetes:
 echo "############# Installing Kubernetes ############"
@@ -35,6 +33,7 @@ sudo -E apt-get -qy update
 sudo -E apt-get -qy -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" install kubeadm kubectl kubelet kubernetes-cni
 #sudo apt-get install -y kubeadm kubectl kubelet kubernetes-cni
 
-sudo swapoff -a
 sudo apt autoremove -y
 
+sudo swapoff -a
+sudo sed -i.bak '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab  #Turning off swap permanently through fstab
