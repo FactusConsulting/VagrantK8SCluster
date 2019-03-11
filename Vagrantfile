@@ -27,6 +27,11 @@ Vagrant.configure("2") do |config|
                                            mount_options: ["vers=3.0"]
 
   config.trigger.before [:up, :reload] do |trigger|
+    trigger.info = "Checking share creds are set"
+    trigger.run = { path: "scripts/host/check-sharecredentials.ps1" }
+    trigger.on_error = :halt
+  end
+  config.trigger.before [:up, :reload] do |trigger|
     trigger.info = "Running before up scripts"
     trigger.run = { path: "scripts/host/create-hypervhostnetwork.ps1" }
   end
@@ -65,7 +70,7 @@ Vagrant.configure("2") do |config|
 
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
-        host_shell.inline = "powershell.exe scripts/add-vmnetcard.ps1 vagrantk8s_ln2#{number}"
+        host_shell.inline = "powershell.exe scripts/host/add-vmnetcard.ps1 vagrantk8s_ln2#{number}"
       end
       node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "resources/networkconfig/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "once"
       node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/linuxguests/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "once", sensitive: true
@@ -102,6 +107,7 @@ Vagrant.configure("2") do |config|
   # Domain Controller
   config.vm.define "dc" do |node|
     node.vm.box = "cdaf/WindowsServerDC"
+    node.vm.network "private_network", bridge: "Default Switch"
     node.vm.boot_timeout = 4800
     node.vm.communicator = "winrm"
     node.vm.provider "hyperv" do |hv|
