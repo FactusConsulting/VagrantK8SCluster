@@ -26,6 +26,8 @@ Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and 
 Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Enable-NetAdapterBinding
 
 Write-Host "Setting connection profile to private for Default switch"
+
+#Problem paa Peters maskine
 Get-NetConnectionProfile -InterfaceIndex $defaultAdapter.ifIndex | Set-NetConnectionProfile -NetworkCategory Private
 Write-Host "Default switch config complete."
 

@@ -71,6 +71,7 @@ Vagrant.configure("2") do |config|
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
         host_shell.inline = "powershell.exe scripts/host/add-vmnetcard.ps1 vagrantk8s_ln2#{number}"
+        run = "once"
       end
       node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "resources/networkconfig/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "once"
       node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/linuxguests/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "once", sensitive: true
@@ -96,20 +97,22 @@ Vagrant.configure("2") do |config|
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
         host_shell.inline = "powershell.exe scripts/host/add-vmnetcard.ps1 vagrantk8s_wn3#{number}"
+        run = "once"
       end
-      node.vm.provision "config_guestnetwork", type: "shell", path: "scripts/windowsguests/configure-guestnetwork.ps1", args: "3#{number}"
-
+      node.vm.provision "config_guestnetwork", type: "shell", path: "scripts/windowsguests/configure-guestnetwork.ps1", args: "3#{number}", run: "once"
       node.vm.provision "config_windowsclient", type: "shell", path: "scripts/windowsguests/WindowsServerNodeSetup.ps1", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "once", sensitive: true
-      node.vm.provision "copy_daemon.json", type: "file", source: "resources/daemon.json", destination: "c:/programdata/docker/config/daemon.json"
+      node.vm.provision "copy_daemon.json", type: "file", source: "resources/daemon.json", destination: "c:/programdata/docker/config/daemon.json", run: "once"
     end
   end
 
   # Domain Controller
   config.vm.define "dc" do |node|
-    node.vm.box = "cdaf/WindowsServerDC"
+    # node.vm.box = "cdaf/WindowsServerDC"
+    node.vm.box = "StefanScherer/windows_2019"
     node.vm.network "private_network", bridge: "Default Switch"
     node.vm.boot_timeout = 4800
     node.vm.communicator = "winrm"
+    node.vm.hostname = "dc"
     node.vm.provider "hyperv" do |hv|
       hv.vmname = "vagrantk8s_DC"
     end

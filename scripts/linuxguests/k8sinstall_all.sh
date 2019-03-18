@@ -30,7 +30,7 @@ echo "############# Installing Kubernetes ############"
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 sudo -E apt-get -qy update
-sudo -E apt-get -qy -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" install kubeadm kubectl kubelet kubernetes-cni
+sudo -E apt-get -qy -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" install kubeadm kubectl kubelet #kubernetes-cni
 #sudo apt-get install -y kubeadm kubectl kubelet kubernetes-cni
 
 sudo apt autoremove -y
