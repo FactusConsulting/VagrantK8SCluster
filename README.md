@@ -44,5 +44,6 @@ The Vagrant file supports 3 of each type of machine, and one domain controller f
 * Domain controller setup and joining the windows nodes to the dc for testing GMSA based access from pods.
 * More masters and joining masters as master nodes
 * More automated and robust setup of Windows nodes
+* Set up persistent storage
 * When Virtual Box 6 on windows gets their hyper-v usage issues ironed out, this might be migrated to using Virtual Box.
 * Migrate scripts from just raw scripts to using vagrant. Preferably vagrant running in a linux docker on windows with the microsoft/ansible container.

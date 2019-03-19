@@ -1,6 +1,7 @@
 Write-Host "Hello from windows server node"
 
-#new-NetIPAddress -ifIndex $ifindex -IPAddress 192.168.3.10 -PrefixLength 24 -AddressFamily IPv4 -DefaultGateway 192.168.3.1
+get-netadapter
+Get-NetIPConfiguration
 
 Write-Host "Installing Chocolatey"
 Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
@@ -8,29 +9,46 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object
 Write-Host "Installing nuget provider"
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
 
-#Installing windows admin center
-Invoke-WebRequest -Uri "https://aka.ms/WACDownload" -OutFile winadmin.msi
-
-msiexec /i winadmin.msi /qn /L*v log.txt SME_PORT=4443 SSL_CERTIFICATE_OPTION=generate
-New-NetFirewallRule -DisplayName 'WinServerAdmin' -Profile @('Domain', 'Private') -Direction Inbound -Action Allow -Protocol TCP -LocalPort @('44300', '44301')
 # Write-Host "Installing Docker EE provider"
 # Install-Module -Name DockerMsftProvider -Repository PSGallery -Force
-
 # Write-Host "Installing Docker EE"
 # Install-Package -Name Docker -ProviderName DockerMsftProvider -force
-
 # Copy-Item daemon.json c:\programdata\docker\config\
 # start-service docker
 docker version
 
+# Write-Host "We are pulling the Nanoserver image, this might take a few minutes"
+# docker pull mcr.microsoft.com/windows/nanoserver:1809
+# docker tag mcr.microsoft.com/windows/nanoserver:1809 microsoft/nanoserver:latest
+
+mkdir c:\k
+Copy-Item c:\vagrant\kubeconfig c:\k\config
+[Environment]::SetEnvironmentVariable("KUBECONFIG", "c:\k\config", "Machine")
 
 
-####  Install windows admin services
-Invoke-WebRequest -Uri "https://aka.ms/WACDownload" -OutFile "winadm.msi"
-msiexec /i winadmin.msi /qn /L*v log.txt SME_PORT=44300 SSL_CERTIFICATE_OPTION=generate
+<#
+Download
+kubectl
+Kubelet
+kubeproxy
+#>
+
+New-Item -Path c:\temp -ItemType Directory
+Set-Location c:\temp
+
+Write-Host "Downloading Kubelet etc..."
+$url = "https://dl.k8s.io/v1.14.0-beta.2/kubernetes-node-windows-amd64.tar.gz"
+$output = "c:\temp\kubenode.gz"
+(New-Object System.Net.WebClient).DownloadFile($url, $output)
+
+tar -xzvf c:/temp/kubenode.gz -C c:/temp
+Move-Item "c:/temp/kubernetes/node/bin/*.exe" c:/k/
 
 
-
+# ####  Install windows admin services
+# Invoke-WebRequest -Uri "https://aka.ms/WACDownload" -OutFile "winadm.msi"
+# msiexec /i winadmin.msi /qn /L*v log.txt SME_PORT=44300 SSL_CERTIFICATE_OPTION=generate
+# New-NetFirewallRule -DisplayName 'WinServerAdmin' -Profile @('Domain', 'Private') -Direction Inbound -Action Allow -Protocol TCP -LocalPort @('44300', '44301')
 
 # #####  Setting up domain #################
 
@@ -58,3 +76,9 @@ msiexec /i winadmin.msi /qn /L*v log.txt SME_PORT=44300 SSL_CERTIFICATE_OPTION=g
 # ## Reboot
 
 
+## Flannel network setup
+Set-Location c:\k
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Write-Host "Downloading start.ps1 to c:\k ... ready for running command manually on server"
+wget https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/start.ps1 -o c:\k\start.ps1
+###Run this manually #.\start.ps1 -ManagementIP 192.168.10.31 -NetworkMode overlay -ClusterCIDR 10.244.0.0/16 -ServiceCIDR 10.96.0.0/12 -KubeDnsServiceIP 10.96.0.10 -InterfaceName Ethernet -LogDir c:\k -KubeletFeatureGates "WinOverlay=true"

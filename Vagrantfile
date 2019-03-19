@@ -94,14 +94,21 @@ Vagrant.configure("2") do |config|
         hv.vmname = "vagrantk8s_wn3#{number}"
       end
 
+      node.vm.synced_folder ".", "/vagrant", type: "smb",
+                                             disabled: false,  #Enable and set username pw if you dont want to get prompted for each machine up
+                                             smb_password: ENV["PW"],
+                                             smb_username: ENV["USERNAME"],
+                                             mount_options: ["vers=3.0"]
+
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
         host_shell.inline = "powershell.exe scripts/host/add-vmnetcard.ps1 vagrantk8s_wn3#{number}"
         run = "once"
       end
       node.vm.provision "config_guestnetwork", type: "shell", path: "scripts/windowsguests/configure-guestnetwork.ps1", args: "3#{number}", run: "once"
-      node.vm.provision "config_windowsclient", type: "shell", path: "scripts/windowsguests/WindowsServerNodeSetup.ps1", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "once", sensitive: true
-      node.vm.provision "copy_daemon.json", type: "file", source: "resources/daemon.json", destination: "c:/programdata/docker/config/daemon.json", run: "once"
+      node.vm.provision "config_windowsnode", type: "shell", path: "scripts/windowsguests/WindowsServerNodeSetup.ps1", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "once", sensitive: true
+      node.vm.provision :reload, run: "once"
+      # node.vm.provision "copy_daemon.json", type: "file", source: "resources/daemon.json", destination: "c:/programdata/docker/config/daemon.json", run: "once"
     end
   end
 

@@ -48,7 +48,7 @@ echo "######### Bridged IPv4 traffic to iptables chains when using Flannel."
 #For more information check https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/
 sudo sysctl net.bridge.bridge-nf-call-iptables=1
 
-echo "######### Flannel network setup"
+echo "######### Flannel network setup - VXLAN"
 kubectl apply -f /vagrant/kubernetessetup/kube-flannel-vxlan.yml
 sleep 10s
 echo "######### Setting flannel network pod to only run on linux nodes"
