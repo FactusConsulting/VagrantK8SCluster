@@ -82,3 +82,11 @@ Set-Location c:\k
 Write-Host "Downloading start.ps1 to c:\k ... ready for running command manually on server"
 wget https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/start.ps1 -o c:\k\start.ps1
 ###Run this manually #.\start.ps1 -ManagementIP 192.168.10.31 -NetworkMode overlay -ClusterCIDR 10.244.0.0/16 -ServiceCIDR 10.96.0.0/12 -KubeDnsServiceIP 10.96.0.10 -InterfaceName Ethernet -LogDir c:\k -KubeletFeatureGates "WinOverlay=true"
+
+
+
+$url = "http://download.windowsupdate.com/c/msdownload/update/software/updt/2019/02/windows10.0-kb4482887-x64_826158e9ebfcabe08b425bf2cb160cd5bc1401da.msu"
+$output = "c:\temp\kb4482887-x64.msu"
+Write-Host "Downloading and installing the KB4482887 for Windows"
+(New-Object System.Net.WebClient).DownloadFile($url, $output)
+wusa c:\temp\kb4482887-x64.msu /quiet /norestart

@@ -16,8 +16,6 @@ Vagrant.configure("2") do |config|
 
   config.vagrant.plugins = ["vagrant-host-shell", "vagrant-reload"]
   config.vagrant.sensitive = ["Sharepassword", ENV["PW"]]
-  # config.vm.network "private_network", bridge: "Default Switch"
-  # config.vm.network "private_network", bridge: "VagrantNatSwitch"
 
   # Currently disabled due to problems on laptops with wwan adapters.
   config.vm.synced_folder ".", "/vagrant", type: "smb",

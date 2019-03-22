@@ -15,7 +15,7 @@ Write-Host "Testing if the Default Switch exists"
 $defaultAdapter = Get-Netadapter | Where-Object -Property Name -like "*Default Switch*"
 if ($null -eq $defaultAdapter) {
     Write-Error "No Hyper-v switch 'Default Switch' is found. Restart the computer `
-    to recreate the default swithc and try again."
+    to recreate the default switch and try again."
 }
 else { Write-Host "Default switch already exists" }
 
@@ -24,13 +24,8 @@ $defaultAdapter | Disable-NetAdapter -Confirm:$false
 $defaultAdapter | Enable-NetAdapter
 Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Disable-NetAdapterBinding
 Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Enable-NetAdapterBinding
-
 Write-Host "Setting connection profile to private for Default switch"
-
-#Problem paa Peters maskine
-Get-NetConnectionProfile -InterfaceIndex $defaultAdapter.ifIndex | Set-NetConnectionProfile -NetworkCategory Private
 Write-Host "Default switch config complete."
-
 
 ############  SMB 3.0 is needed for shares: #############
 Write-host "Checking for SMB 3.0 enabled"
@@ -51,7 +46,7 @@ if ($null -eq $natSwitch) {
     Write-Output "No Hyper-v switch VagrantNatSwitch is found. Creating one."
     New-VMSwitch -SwitchName $switchName -SwitchType Internal
     $adapter = Get-NetAdapter | Where-Object -Property InterfaceAlias -like "*$switchName*"
-    New-NetIPAddress -IPAddress 192.168.10.1 -PrefixLength 24 -InterfaceIndex $adapter.ifIndex
+    New-NetIPAddress -IPAddress 192.168.10.1 -PrefixLength 24 -InterfaceIndex $adapter.ifIndex -DefaultGateway 192.168.10.1 -AddressFamily IPv4
     Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses ("1.0.0.1", "192.168.1.26")
     Get-NetConnectionProfile -InterfaceIndex $adapter.ifIndex | Set-NetConnectionProfile -NetworkCategory Private
     Write-Output "New Hyper-v Vagrant nat switch $switchName is created"
@@ -59,7 +54,9 @@ if ($null -eq $natSwitch) {
 else {
     Write-Output "Hyper-v switch $switchName already exists - continuing"
 }
-
+Get-NetAdapterBinding -Name "vEthernet (VagrantNatSwitch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Disable-NetAdapterBinding
+Get-NetAdapterBinding -Name "vEthernet (VagrantNatSwitch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Enable-NetAdapterBinding
+Set-NetConnectionProfile -NetworkCategory Private -InterfaceIndex $defaultAdapter.ifIndex
 
 ############  Vagrant Nat network: #############
 Write-Host "Looking for the VagrantNatNetwork on this machine"
