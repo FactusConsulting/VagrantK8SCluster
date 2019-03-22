@@ -98,6 +98,10 @@ Vagrant.configure("2") do |config|
                                              smb_username: ENV["USERNAME"],
                                              mount_options: ["vers=3.0"]
 
+      config.trigger.after [:up, :reload] do |trigger|
+        trigger.info = "Running before up scripts"
+        trigger.run = { path: "scripts/host/Set-WindowsVMSwitch.ps1", args: "vagrantk8s_wn3#{number}" }
+      end
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
         host_shell.inline = "powershell.exe scripts/host/add-vmnetcard.ps1 vagrantk8s_wn3#{number}"
