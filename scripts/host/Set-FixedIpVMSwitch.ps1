@@ -6,6 +6,6 @@ param(
 )
 
 Write-Verbose "Hello from $env:COMPUTERNAME"
-Write-Verbose "Param VMName = $vmName"
+Write-Verbose "Param VMName = $vmName" -Verbose
 $switchName = "VagrantNatSwitch"
 GET-VM -Name $vmName | GET-VMNetworkAdapter -Name fixedip  |  Connect-VMNetworkAdapter -SwitchName $switchName
