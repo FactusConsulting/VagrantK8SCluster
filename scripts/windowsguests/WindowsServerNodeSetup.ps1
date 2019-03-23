@@ -47,4 +47,4 @@ Write-Verbose "Downloading and installing the KB4482887 for Windows"
 (New-Object System.Net.WebClient).DownloadFile($url, $output)
 wusa c:\temp\kb4482887-x64.msu /quiet /norestart
 
-### Run this manually ####  .\start.ps1 -ManagementIP 192.168.10.31 -NetworkMode overlay -ClusterCIDR 10.244.0.0/16 -ServiceCIDR 10.96.0.0/12 -KubeDnsServiceIP 10.96.0.10 -InterfaceName Ethernet -LogDir c:\k -KubeletFeatureGates "WinOverlay=true"
+### Run this manually ####  .\start.ps1 -ManagementIP 192.168.10.31 -NetworkMode overlay -ClusterCIDR 10.244.0.0/16 -ServiceCIDR 10.96.0.0/12 -KubeDnsServiceIP 10.96.0.10 -InterfaceName FixedIp -LogDir c:\k -KubeletFeatureGates "WinOverlay=true"

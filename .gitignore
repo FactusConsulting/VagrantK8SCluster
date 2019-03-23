@@ -18,3 +18,4 @@ join_cmd.sh
 .vagrant/machines/node2/hyperv/vagrant_cwd
 .vagrant/rgloader/loader.rb
 .vagrant/
+k/
