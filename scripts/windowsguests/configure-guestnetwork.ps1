@@ -12,7 +12,7 @@ if ((get-netadapter -Name $newAdapterName | Get-NetIPAddress).IPAddress -notlike
     Get-NetAdapter -Name $newAdapterName | New-NetIPAddress -IPAddress 192.168.10.$ipSegment -PrefixLength 24 -DefaultGateway 192.168.10.1
     $ifindex = (Get-NetAdapter -Name $newAdapterName).ifIndex
     Set-DnsClientServerAddress -InterfaceIndex $ifindex -ServerAddresses ("1.0.0.1", "192.168.1.26")
-    Set-NetIPInterface -InterfaceIndex $ifindex -InterfaceMetric 10
+    Set-NetIPInterface -InterfaceIndex $ifindex -InterfaceMetric 5
 }
 # Rename-NetAdapter -Name "Ethernet 2" -NewName "Fixedip"
 
