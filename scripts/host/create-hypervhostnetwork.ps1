@@ -1,71 +1,63 @@
 
-Write-Host "Hello from $env:COMPUTERNAME"
-Write-Host "create-hypervhostnetwork.ps1 called"
-
-#Need to inherit from parent session and push to parent. How to do that?
-# if ($null -eq $ENV:pw) {
-#     $c = Get-Credential -UserName "$ENV:USERDOMAIN\$ENV:USERNAME" -Message "Storing you username/pw in this session for saving vagrant from prompting for it on every UP."
-#     $ENV:UN = "$ENV:USERDOMAIN\$ENV:USERNAME"
-#     $ENV:PW = $c.GetNetworkCredential().Password
-# }
-
+Write-Verbose "Hello from $env:COMPUTERNAME"
+Write-Verbose "create-hypervhostnetwork.ps1 called"
 
 ############  Default switch has to be massaged: #############
-Write-Host "Testing if the Default Switch exists"
+Write-Verbose "Testing if the Default Switch exists"
 $defaultAdapter = Get-Netadapter | Where-Object -Property Name -like "*Default Switch*"
 if ($null -eq $defaultAdapter) {
     Write-Error "No Hyper-v switch 'Default Switch' is found. Restart the computer `
     to recreate the default switch and try again."
 }
-else { Write-Host "Default switch already exists" }
+else { Write-Verbose "Default switch already exists" }
 
-Write-Host "Default Switch found. Enabling and disabling the Hyper-v switch to ensure it is functional"
+Write-Verbose "Default Switch found. Enabling and disabling the Hyper-v switch to ensure it is functional"
 $defaultAdapter | Disable-NetAdapter -Confirm:$false
 $defaultAdapter | Enable-NetAdapter
 Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Disable-NetAdapterBinding
 Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Enable-NetAdapterBinding
-Write-Host "Setting connection profile to private for Default switch"
-Write-Host "Default switch config complete."
+Write-Verbose "Setting connection profile to private for Default switch"
+Write-Verbose "Default switch config complete."
 
 ############  SMB 3.0 is needed for shares: #############
-Write-host "Checking for SMB 3.0 enabled"
+Write-Verbose "Checking for SMB 3.0 enabled"
 $smb = Get-WindowsOptionalFeature -Online | Where-Object {$_.FeatureName -like "SmbDirect"}
 if ($null -eq $smb) {
-    Write-Host "SMB 3.0 not found. Installing it"
+    Write-Verbose "SMB 3.0 not found. Installing it"
     Enable-WindowsOptionalFeature -Online -FeatureName SmbDirect
-    Write-Host "SMB 3.0 is now enabled"
+    Write-Verbose "SMB 3.0 is now enabled"
 }
-else { Write-Host "SMB3.0 is already enabled - continuing"}
+else { Write-Verbose "SMB3.0 is already enabled - continuing"}
 
 
 ############  Hyper-v VagrantNatSwitch: #############
-Write-Host "Creating new NAT Hyper-V network on your host, if it does not already exist"
+Write-Verbose "Creating new NAT Hyper-V network on your host, if it does not already exist"
 $switchName = "VagrantNatSwitch"
 $natSwitch = Get-VMSwitch | Where-Object -Property Name -like "*$switchName*"
 if ($null -eq $natSwitch) {
-    Write-Output "No Hyper-v switch VagrantNatSwitch is found. Creating one."
+    Write-Verbose "No Hyper-v switch VagrantNatSwitch is found. Creating one."
     New-VMSwitch -SwitchName $switchName -SwitchType Internal
     $adapter = Get-NetAdapter | Where-Object -Property InterfaceAlias -like "*$switchName*"
     New-NetIPAddress -IPAddress 192.168.10.1 -PrefixLength 24 -InterfaceIndex $adapter.ifIndex -DefaultGateway 192.168.10.1 -AddressFamily IPv4
     Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses ("1.0.0.1", "192.168.1.26")
     Get-NetConnectionProfile -InterfaceIndex $adapter.ifIndex | Set-NetConnectionProfile -NetworkCategory Private
-    Write-Output "New Hyper-v Vagrant nat switch $switchName is created"
+    Write-Verbose "New Hyper-v Vagrant nat switch $switchName is created"
 }
 else {
-    Write-Output "Hyper-v switch $switchName already exists - continuing"
+    Write-Verbose "Hyper-v switch $switchName already exists - continuing"
 }
 Get-NetAdapterBinding -Name "vEthernet (VagrantNatSwitch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Disable-NetAdapterBinding
 Get-NetAdapterBinding -Name "vEthernet (VagrantNatSwitch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Enable-NetAdapterBinding
 Set-NetConnectionProfile -NetworkCategory Private -InterfaceIndex $defaultAdapter.ifIndex
 
 ############  Vagrant Nat network: #############
-Write-Host "Looking for the VagrantNatNetwork on this machine"
+Write-Verbose "Looking for the VagrantNatNetwork on this machine"
 $natnetworks = Get-NetNat | Where-Object -Property Name -like "*VagrantNatNetwork*"
 if ($null -eq $natnetworks) {
-    Write-Output "No netnat is found. Creating the VagrantNatNetwork"
+    Write-Verbose "No netnat is found. Creating the VagrantNatNetwork"
     New-NetNat -Name "VagrantNatNetwork" -InternalIPInterfaceAddressPrefix 192.168.10.0/24
-    Write-Output "New vagrant NAT network has been created"
+    Write-Verbose "New vagrant NAT network has been created"
 }
 else {
-    Write-Output "Vagrant NAT network already exists - continuing"
+    Write-Verbose "Vagrant NAT network already exists - continuing"
 }

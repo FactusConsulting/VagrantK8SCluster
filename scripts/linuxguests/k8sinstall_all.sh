@@ -1,22 +1,32 @@
 #!/usr/bin/env bash
 
-echo "In k8sInstall_all.sh"
-echo "Updating all packages"
+if [[ "$1" == "--silent" ]]; then
+  SILENT=true
+fi
+
+log() {
+  if ! $SILENT; then
+    echo $1
+  fi
+}
+
+log "In k8sInstall_all.sh"
+log "Updating all packages"
 
 #Initial update
 export DEBIAN_FRONTEND=noninteractive
 export DEBIAN_PRIORITY=critical
 sudo -E apt-get -qy update
-echo "########### Running upgrade ###########"
+log "########### Running upgrade ###########"
 sudo -E apt-get -qy -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" upgrade
-echo "########### Running dist-upgrade ###########"
+log "########### Running dist-upgrade ###########"
 sudo -E apt-get -qy -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" dist-upgrade
-echo "########### Running autoclean ###########"
+log "########### Running autoclean ###########"
 sudo -E apt-get -qy autoclean
 
 
 #Docker:
-echo "############# Installing Docker ############"
+log "############# Installing Docker ############"
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 sudo -E apt-get -qy update
@@ -27,7 +37,7 @@ sudo systemctl start docker
 docker run hello-world
 
 # #Kubernetes:
-echo "############# Installing Kubernetes ############"
+log "############# Installing Kubernetes ############"
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 sudo -E apt-get -qy update

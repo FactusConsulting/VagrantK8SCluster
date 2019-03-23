@@ -1,4 +1,4 @@
-Write-Host "Additional steps on domain controller"
+Write-Verbose "Additional steps on domain controller"
 
 . c:\vagrant\scripts\fill-ad.ps1
 . c:\vagrant\scripts\create-jb7nd-keytab.ps1

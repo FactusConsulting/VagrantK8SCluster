@@ -3,8 +3,8 @@ param(
     $ipSegment
 )
 
-Write-Host "Hello from $env:COMPUTERNAME"
-Write-Host "Hello from create-hypervguestnetwork.ps1 with parameter ipSegment: $ipSegment"
+Write-Verbose "Hello from $env:COMPUTERNAME"
+Write-Verbose "Hello from create-hypervguestnetwork.ps1 with parameter ipSegment: $ipSegment"
 #find the name and ifindex of the new switch
 $newNetAdapter = Get-NetAdapterAdvancedProperty -DisplayName "Hyper-V Network Adapter Name" | Where-Object DisplayValue -like "fixedIp"
 $newAdapterName = $newNetAdapter.Name

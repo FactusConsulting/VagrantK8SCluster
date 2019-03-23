@@ -4,11 +4,11 @@ $subnet = $ip -replace "\.\d+$", ""
 
 if ((gwmi win32_computersystem).partofdomain -eq $false) {
 
-  Write-Host 'Installing RSAT tools'
+  Write-Verbose 'Installing RSAT tools'
   Import-Module ServerManager
   Add-WindowsFeature RSAT-AD-PowerShell,RSAT-AD-AdminCenter
 
-  Write-Host 'Creating domain controller'
+  Write-Verbose 'Creating domain controller'
   # Disable password complexity policy
   secedit /export /cfg C:\secpol.cfg
   (Get-Content C:\secpol.cfg).replace("PasswordComplexity = 1", "PasswordComplexity = 0") | Out-File C:\secpol.cfg
@@ -44,7 +44,7 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
   $newDNSServers = "8.8.8.8", "4.4.4.4"
   $adapters = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -And ($_.IPAddress).StartsWith($subnet) }
   if ($adapters) {
-    Write-Host Setting DNS
+    Write-Verbose Setting DNS
     $adapters | ForEach-Object {$_.SetDNSServerSearchOrder($newDNSServers)}
   }
 }
