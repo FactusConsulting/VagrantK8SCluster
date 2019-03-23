@@ -14,7 +14,7 @@ if ((get-netadapter -Name $newAdapterName | Get-NetIPAddress).IPAddress -notlike
     Set-DnsClientServerAddress -InterfaceIndex $ifindex -ServerAddresses ("1.0.0.1", "192.168.1.26")
     Set-NetIPInterface -InterfaceIndex $ifindex -InterfaceMetric 10
 }
-
+Rename-NetAdapter -Name "Ethernet 2" -NewName "Fixedip"
 
 #For testing purposes - enable ICMP echo requests:
 #IPv4

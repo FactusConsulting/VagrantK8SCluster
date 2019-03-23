@@ -46,6 +46,7 @@ Vagrant.configure("2") do |config|
       config.trigger.after [:up, :reload] do |trigger|
         trigger.info = "Setting IPFixed to VagrantNatNetwork switch"
         trigger.run = { path: "scripts/host/Set-FixedIpVMSwitch.ps1", args: "vagrantk8s_m1#{number}" }
+        trigger.only_on = "m#{number}"
       end
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
@@ -71,6 +72,7 @@ Vagrant.configure("2") do |config|
       config.trigger.after [:up, :reload] do |trigger|
         trigger.info = "Setting FixedIp to VagrantNatNetwork switch"
         trigger.run = { path: "scripts/host/Set-FixedIpVMSwitch.ps1", args: "vagrantk8s_ln2#{number}" }
+        trigger.only_on = "ln#{number}"
       end
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
@@ -100,6 +102,7 @@ Vagrant.configure("2") do |config|
       config.trigger.after [:up, :reload] do |trigger|
         trigger.info = "Setting FixedIp to VagrantNatNetwork switch"
         trigger.run = { path: "scripts/host/Set-FixedIpVMSwitch.ps1", args: "vagrantk8s_wn3#{number}" }
+        trigger.only_on = "wn#{number}"
       end
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
