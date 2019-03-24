@@ -120,7 +120,7 @@ Vagrant.configure("2") do |config|
       node.vm.provision "config_windowsnode", type: "shell", path: "scripts/windowsguests/WindowsServerNodeSetup.ps1", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "once", sensitive: true
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
-        host_shell.inline = "Restart-VM -Name vagrantk8s_wn3#{number} -Confirm:$false -Wait -Force"
+        host_shell.inline = "powershell.exe -noprofile -command {Restart-VM -Name vagrantk8s_wn3#{number} -Confirm:$false -Wait -Force}"
       end
     end
   end
