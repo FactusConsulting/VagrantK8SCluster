@@ -58,7 +58,7 @@ Vagrant.configure("2") do |config|
 
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
-        host_shell.inline = "scripts/host/add-vmnetcard.ps1 vagrantk8s_m1#{number}"
+        host_shell.inline = "powershell.exe -noprofile scripts/host/add-vmnetcard.ps1 vagrantk8s_m1#{number}"
       end
       node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "resources/networkconfig/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "once"
       node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/linuxguests/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]} #{ENV["PW"]} >> provision.log 2>&1", run: "once", sensitive: true
@@ -84,7 +84,7 @@ Vagrant.configure("2") do |config|
       end
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
-        host_shell.inline = "scripts/host/add-vmnetcard.ps1 vagrantk8s_ln2#{number}"
+        host_shell.inline = "powershell.exe -noprofile scripts/host/add-vmnetcard.ps1 vagrantk8s_ln2#{number}"
         run = "once"
       end
       node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "resources/networkconfig/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "once"
@@ -113,7 +113,7 @@ Vagrant.configure("2") do |config|
       end
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
-        host_shell.inline = "scripts/host/add-vmnetcard.ps1 vagrantk8s_wn3#{number}"
+        host_shell.inline = "powershell.exe -noprofile scripts/host/add-vmnetcard.ps1 vagrantk8s_wn3#{number}"
         run = "once"
       end
       node.vm.provision "config_guestnetwork", type: "shell", path: "scripts/windowsguests/configure-guestnetwork.ps1", args: "3#{number} -verbose", run: "once"
@@ -122,7 +122,6 @@ Vagrant.configure("2") do |config|
         host_shell.abort_on_nonzero = true
         host_shell.inline = "Restart-VM -Name vagrantk8s_wn3#{number} -Confirm:$false -Wait -Force"
       end
-      # node.vm.provision :reload, run: "once"
     end
   end
 
