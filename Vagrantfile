@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
 
   config.trigger.before [:up, :reload] do |trigger|
     trigger.info = "Checking share creds are set"
-    trigger.run = { path: "scripts/host/check-sharecredentials.ps1" }
+    trigger.run = { path: "scripts/host/check-sharedcredentials.ps1" }
     trigger.on_error = :halt
   end
   config.trigger.before [:up, :reload] do |trigger|
