@@ -48,9 +48,17 @@ Vagrant.configure("2") do |config|
         trigger.run = { path: "scripts/host/Set-FixedIpVMSwitch.ps1", args: "vagrantk8s_m1#{number}" }
         trigger.only_on = "m#{number}"
       end
+
+      config.trigger.after [:destroy] do |trigger|
+        trigger.info = "Removing kubeconfig and join_cmd.sh leftover files"
+        trigger.run = { inline: "remove-item -path kubeconfig,join_cmd.sh -InformationAction SilentlyContinue -ErrorAction Ignore" }
+        trigger.only_on = "m#{number}"
+        trigger.exit_codes = [0, 1]
+      end
+
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
-        host_shell.inline = "powershell.exe scripts/host/add-vmnetcard.ps1 vagrantk8s_m1#{number}"
+        host_shell.inline = "scripts/host/add-vmnetcard.ps1 vagrantk8s_m1#{number}"
       end
       node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "resources/networkconfig/1#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "once"
       node.vm.provision "configure_guestnetwork", type: "shell", path: "scripts/linuxguests/configure-guestnetwork.sh", args: "#{ENV["USERNAME"]} #{ENV["PW"]} >> provision.log 2>&1", run: "once", sensitive: true
@@ -76,7 +84,7 @@ Vagrant.configure("2") do |config|
       end
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
-        host_shell.inline = "powershell.exe scripts/host/add-vmnetcard.ps1 vagrantk8s_ln2#{number}"
+        host_shell.inline = "scripts/host/add-vmnetcard.ps1 vagrantk8s_ln2#{number}"
         run = "once"
       end
       node.vm.provision "copy_netplanfiletovagrant", type: "file", source: "resources/networkconfig/2#{number}-01-netcfg.yaml", destination: "01-netcfg.yaml", run: "once"
@@ -91,7 +99,6 @@ Vagrant.configure("2") do |config|
   (1..3).each do |number|
     config.vm.define "wn#{number}" do |node|
       node.vm.box = "StefanScherer/windows_2019_docker"
-      node.vm.boot_timeout = 4800
       node.vm.communicator = "winrm"
       node.vm.guest = "windows"
       node.vm.hostname = "wn#{number}"
@@ -106,12 +113,16 @@ Vagrant.configure("2") do |config|
       end
       node.vm.provision :host_shell do |host_shell|
         host_shell.abort_on_nonzero = true
-        host_shell.inline = "powershell.exe scripts/host/add-vmnetcard.ps1 vagrantk8s_wn3#{number}"
+        host_shell.inline = "scripts/host/add-vmnetcard.ps1 vagrantk8s_wn3#{number}"
         run = "once"
       end
-      node.vm.provision "config_guestnetwork", type: "shell", path: "scripts/windowsguests/configure-guestnetwork.ps1", args: "3#{number} ", run: "once"
+      node.vm.provision "config_guestnetwork", type: "shell", path: "scripts/windowsguests/configure-guestnetwork.ps1", args: "3#{number} -verbose", run: "once"
       node.vm.provision "config_windowsnode", type: "shell", path: "scripts/windowsguests/WindowsServerNodeSetup.ps1", args: "#{ENV["USERNAME"]} #{ENV["PW"]}", run: "once", sensitive: true
-      node.vm.provision :reload, run: "once"
+      node.vm.provision :host_shell do |host_shell|
+        host_shell.abort_on_nonzero = true
+        host_shell.inline = "Restart-VM -Name vagrantk8s_wn3#{number} -Confirm:$false -Wait -Force"
+      end
+      # node.vm.provision :reload, run: "once"
     end
   end
 
