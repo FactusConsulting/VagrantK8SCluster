@@ -17,6 +17,11 @@ $defaultAdapter | Enable-NetAdapter
 Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Disable-NetAdapterBinding
 Get-NetAdapterBinding -Name "vEthernet (Default Switch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Enable-NetAdapterBinding
 Write-Verbose "Setting connection profile to private for Default switch"
+while ((Get-NetConnectionProfile -InterfaceIndex $defaultAdapter.ifIndex).Name -ne 'Unidentified network') {
+    Write-Output "Waiting for Default Switch connection profile to be recognized"
+    Start-Sleep -Seconds 3
+}
+Set-NetConnectionProfile -NetworkCategory Private -InterfaceIndex $defaultAdapter.ifIndex
 Write-Verbose "Default switch config complete."
 
 ############  SMB 3.0 is needed for shares: #############
@@ -48,7 +53,6 @@ else {
 }
 Get-NetAdapterBinding -Name "vEthernet (VagrantNatSwitch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Disable-NetAdapterBinding
 Get-NetAdapterBinding -Name "vEthernet (VagrantNatSwitch)" -DisplayName "File and Printer Sharing for Microsoft Networks" | Enable-NetAdapterBinding
-Set-NetConnectionProfile -NetworkCategory Private -InterfaceIndex $defaultAdapter.ifIndex
 
 ############  Vagrant Nat network: #############
 Write-Verbose "Looking for the VagrantNatNetwork on this machine"
