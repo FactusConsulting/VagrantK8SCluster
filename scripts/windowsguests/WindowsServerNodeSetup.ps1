@@ -28,7 +28,8 @@ New-Item -Path c:\temp -ItemType Directory | Write-Verbose
 Set-Location c:\temp    | Write-Verbose
 
 Write-Verbose "Downloading Kubelet etc..."
-$url = "https://dl.k8s.io/v1.14.0-rc.1/kubernetes-node-windows-amd64.tar.gz"
+$url = "https://dl.k8s.io/v1.14.0/kubernetes-node-windows-amd64.tar.gz"
+#https://dl.k8s.io/v1.14.0/kubernetes-node-windows-amd64.tar.gz
 #https://dl.k8s.io/v1.14.0-beta.2/kubernetes-node-windows-amd64.tar.gz
 #https://dl.k8s.io/v1.14.0-rc.1/kubernetes-node-windows-amd64.tar.gz
 $output = "c:\temp\kubenode.gz"
