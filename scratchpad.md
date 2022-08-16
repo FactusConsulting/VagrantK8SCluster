@@ -61,9 +61,7 @@ echo 'net.bridge.bridge-nf-call-iptables=1' | sudo tee -a /etc/sysctl.conf
 
 
 
-Windows
-install-module -name DockerMsftProvider –Force
-Install-Package Docker –Providername DockerMsftProvider -Force
+
 
 
 

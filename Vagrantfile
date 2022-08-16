@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
           #vb.customize ["modifyvm", :id, "--uartmode1", "file", File::NULL]   #if ubuntu
         end
         cp.vm.synced_folder ".", type: "smb", disabled: true
-        cp.vm.provision "file", source: "./scripts/zscalerroot.cer", destination: "~/zscalerroot.cer"
+        cp.vm.provision "file", source: "./resources/zscalerroot.cer", destination: "~/zscalerroot.cer"
         cp.vm.provision "shell", inline: <<-SHELL    #if rocky linux ... copy zscaler root cert to here
           cp /home/vagrant/zscalerroot.cer /etc/pki/ca-trust/source/anchors
           update-ca-trust
