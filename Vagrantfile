@@ -63,7 +63,7 @@ Vagrant.configure("2") do |config|
         lw.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_lw2#{number}"
         end
-        lw.vm.provision "file", source: "./scripts/zscalerroot.cer", destination: "~/zscalerroot.cer"
+        lw.vm.provision "file", source: "./resources/zscalerroot.cer", destination: "~/zscalerroot.cer"
         lw.vm.provision "shell", inline: <<-SHELL    #if rocky linux ... copy zscaler root cert to here
           cp /home/vagrant/zscalerroot.cer /etc/pki/ca-trust/source/anchors
           update-ca-trust
