@@ -35,7 +35,7 @@ docker run -d --restart=unless-stopped \
   -v /opt/rancher:/var/lib/rancher \
   -e AUDIT_LEVEL=1 \
   --privileged \
-  rancher/rancher:stable
+  rancher/rancher
 
 
   docker run -d --restart=unless-stopped \
@@ -46,6 +46,8 @@ docker run -d --restart=unless-stopped \
   --privileged \
   rancher/rancher:stable
 
+
+# Version v2.4.9
 
   sudo docker run -d --restart=unless-stopped   --name rancher-server   -p 8080:80 -p 8443:443   -e AUDIT_LEVEL=1   -e CATTLE_SYSTEM_CATALOG=bundled    --privileged   rancher/rancher:v2.4.1
 

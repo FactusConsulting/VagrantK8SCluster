@@ -24,15 +24,16 @@ sudo systemctl disable nm-cloud-setup.timer
 # sudo usermod -aG docker vagrant
 # sudo systemctl enable docker
 # sudo systemctl start docker
-sudo swapoff -a
-sudo sed -i.bak '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab  #Turning off swap permanently through fstabsdocker
-#sudo update-ca-trust  #rocket os specific
+# sudo swapoff -a
+# sudo sed -i.bak '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab  #Turning off swap permanently through fstabsdocker
+# sudo update-ca-trust  #rocket os specific
 
 
 #Maybe docker prepull?
 
 
 #install yum repositories for rke2 server and agent
+
 cat << EOF > /etc/yum.repos.d/rancher-rke2-1-18-latest.repo
 [rancher-rke2-common-latest]
 name=Rancher RKE2 Common Latest
@@ -50,5 +51,5 @@ gpgkey=https://rpm.rancher.io/public.key
 EOF
 
 yum -y install rke2-server
-#yum -y install rke2-agent
+yum -y install rke2-agent
 cp rke2 /usr/local/bin
