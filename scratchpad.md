@@ -1,3 +1,15 @@
+
+Get the RKE vagrant kubeconfig
+vagrant plugin install vagrant-scp
+vagrant scp cp11:~/rke2vagrantkubeconfig rke2vagrantkubeconfig
+
+
+
+
+
+
+
+
 # Docker
 
 curl https://releases.rancher.com/install-docker/20.10.sh | sh

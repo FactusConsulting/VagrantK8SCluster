@@ -23,14 +23,14 @@ EOF
 
 ##### Not needed for RKE2
 
-# curl -k https://releases.rancher.com/install-docker/20.10.sh  | sh
-# sudo usermod -aG docker $USER
-# sudo usermod -aG docker vagrant
-# sudo systemctl enable docker
-# sudo systemctl start docker
-# sudo swapoff -a
-# sudo sed -i.bak '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab  #Turning off swap permanently through fstabsdocker
-# sudo update-ca-trust  #rocket os specific
+curl -k https://releases.rancher.com/install-docker/20.10.sh  | sh
+sudo usermod -aG docker $USER
+sudo usermod -aG docker vagrant
+sudo systemctl enable docker
+sudo systemctl start docker
+sudo swapoff -a
+sudo sed -i.bak '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab  #Turning off swap permanently through fstabsdocker
+sudo update-ca-trust  #rocket os specific
 
 
 #Maybe docker prepull?

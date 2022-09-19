@@ -13,6 +13,7 @@ Vagrant.configure("2") do |config|
       # vb.gui = true
   end
 
+  config.vbguest.auto_update = false
 
     # Linux control plane nodes   Ubuntu ... not using Ubuntu atm
     (1..2).each do |number|
@@ -51,6 +52,8 @@ Vagrant.configure("2") do |config|
         cp.vm.provision "file", source: "./resources/CP_rkeconfig.yaml", destination: "~/config.yaml"
         cp.vm.provision :reload
         cp.vm.provision "shell", path: "scripts/linuxguests/RKE2InstallscriptCP.sh"
+        cp.vm.provision "file", source: "~/rke2vagrantkubeconfig ", destination: "~/config.yaml"
+
       end
     end # Control plane end
 
