@@ -3,8 +3,12 @@
 # If rocky linux
 sudo systemctl stop firewalld
 sudo systemctl disable firewalld
-sudo systemctl disable nm-cloud-setup.timer
+# sudo systemctl disable nm-cloud-setup.timer
 
+sudo cat >> /etc/NetworkManager/conf.d/rke2-canal.conf << EOF
+[keyfile]
+unmanaged-devices=interface-name:cali*;interface-name:flannel*
+EOF
 
 # IPtables if rocky linux - not currently needed
 # sudo yum install iptables-services -y
@@ -30,26 +34,3 @@ sudo systemctl disable nm-cloud-setup.timer
 
 
 #Maybe docker prepull?
-
-
-#install yum repositories for rke2 server and agent
-
-cat << EOF > /etc/yum.repos.d/rancher-rke2-1-18-latest.repo
-[rancher-rke2-common-latest]
-name=Rancher RKE2 Common Latest
-baseurl=https://rpm.rancher.io/rke2/latest/common/centos/8/noarch
-enabled=1
-gpgcheck=1
-gpgkey=https://rpm.rancher.io/public.key
-
-[rancher-rke2-1-18-latest]
-name=Rancher RKE2 1.18 Latest
-baseurl=https://rpm.rancher.io/rke2/latest/1.18/centos/8/x86_64
-enabled=1
-gpgcheck=1
-gpgkey=https://rpm.rancher.io/public.key
-EOF
-
-yum -y install rke2-server
-yum -y install rke2-agent
-cp rke2 /usr/local/bin

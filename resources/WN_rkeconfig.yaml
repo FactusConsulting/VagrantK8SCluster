@@ -1,0 +1,5 @@
+server: https://cp11:9345
+token: mysecretjointoken
+tls-san:
+  - cp11
+  - homek8s.local

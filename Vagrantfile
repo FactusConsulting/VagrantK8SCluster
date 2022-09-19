@@ -4,7 +4,7 @@
 Vagrant.configure("2") do |config|
 
 
-  config.vagrant.plugins = ["vagrant-disksize", "vagrant-reload"]
+  config.vagrant.plugins = ["vagrant-disksize", "vagrant-reload", "vagrant-vbguest"]
 
   config.vm.provider "virtualbox" do |vb|
       vb.linked_clone = true
@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
         cp.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_cp1#{number}"
           vb.memory = 4096
-          vb.cpus = 1
+          vb.cpus = 2
           # vb.customize ["modifyvm", :id, "--uart1", "0x3F8", "4"]             #if ubuntu
           # vb.customize ["modifyvm", :id, "--uartmode1", "file", File::NULL]   #if ubuntu
         end
@@ -48,8 +48,9 @@ Vagrant.configure("2") do |config|
           echo "192.168.56.31 ww31" | tee -a /etc/hosts
         SHELL
         cp.vm.provision "shell", path: "scripts/linuxguests/nodeprereq.sh"
-        cp.vm.provision "shell", path: "scripts/linuxguests/rke2install.sh"
+        cp.vm.provision "file", source: "./resources/CP_rkeconfig.yaml", destination: "~/config.yaml"
         cp.vm.provision :reload
+        cp.vm.provision "shell", path: "scripts/linuxguests/RKE2InstallscriptCP.sh"
       end
     end # Control plane end
 
@@ -61,8 +62,12 @@ Vagrant.configure("2") do |config|
         lw.vm.hostname = "lw2#{number}"
         lw.vm.network "private_network", ip: "192.168.56.2#{number}", hostname: true
         lw.vm.synced_folder ".", type: "smb", disabled: true
+        # lw.vbguest.installer_options = { allow_kernel_upgrade: true, auto_reboot: true } #Allow using vboxsf from vbox guest additions for filesharing
+        # lw.vbguest.installer_hooks[:before_install] = ["dnf -y install bzip2 elfutils-libelf-devel gcc kernel kernel-devel kernel-headers make perl tar", "sleep 2"]
         lw.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_lw2#{number}"
+          vb.memory = 4096
+          vb.cpus = 2
         end
         # lw.vm.provision "file", source: "./scripts/zscalerroot.cer", destination: "~/zscalerroot.cer"
         # lw.vm.provision "shell", inline: <<-SHELL    #if rocky linux ... copy zscaler root cert to here
@@ -81,8 +86,11 @@ Vagrant.configure("2") do |config|
           echo "192.168.56.21 lw21" | tee -a /etc/hosts
           echo "192.168.56.31 ww31" | tee -a /etc/hosts
         SHELL
+        lw.vm.provision "file", source: "./resources/WN_rkeconfig.yaml", destination: "~/config.yaml"
         lw.vm.provision "shell", path: "scripts/linuxguests/nodeprereq.sh"
         lw.vm.provision :reload
+        lw.vm.provision "shell", path: "scripts/linuxguests/RKE2InstallscriptWN.sh"
+
       end
     end  #Linuxworkers end
 
