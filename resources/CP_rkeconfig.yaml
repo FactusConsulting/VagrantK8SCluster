@@ -2,3 +2,4 @@ token: mysecretjointoken
 tls-san:
   - cp11
   - homek8s.local
+cni: calico

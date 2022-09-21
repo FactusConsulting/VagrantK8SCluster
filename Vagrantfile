@@ -109,6 +109,17 @@ Vagrant.configure("2") do |config|
           vb.name = "vagrantk8s_ww3#{number}"
           vb.memory = 4048
         end
+        ww.vm.provision "file", source: "./resources/WN_rkeconfig.yaml", destination: "c:/etc/rancher/rke2/config.yaml"
+        ww.vm.provision "shell", path: "scripts/windowsguests/preparewindowsnode.ps1"
+        ww.vm.provision :reload
+        ww.vm.provision "shell", inline: <<-SHELL
+          echo "192.168.56.11 rancher" >>c:\windows\system32\drivers\etc\hosts
+          echo "192.168.56.11 cp11" >>c:\windows\system32\drivers\etc\hosts
+          echo "192.168.56.12 cp12" >>c:\windows\system32\drivers\etc\hosts
+          echo "192.168.56.21 lw21" >>c:\windows\system32\drivers\etc\hosts
+          echo "192.168.56.31 ww31" >>c:\windows\system32\drivers\etc\hosts
+        SHELL
+        ww.vm.provision "shell", path: "scripts/windowsguests/RKE2InstallScriptWindows.ps1"
       end
     end # Windows workers end
 

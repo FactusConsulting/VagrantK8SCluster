@@ -10,3 +10,7 @@ sudo chown vagrant:vagrant /home/vagrant/rke2vagrantkubeconfig
 # sudo cat /var/lib/rancher/rke2/server/node-token
 # sudo /var/lib/rancher/rke2/bin/crictl
 # sudo /var/lib/rancher/rke2/bin/ctr
+
+
+#sudo mkdir /etc/rancher /etc/rancher/rke2
+#sudo nano /etc/rancher/rke2/config.yaml
