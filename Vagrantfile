@@ -71,14 +71,15 @@ Vagrant.configure("2") do |config|
         lw.vm.synced_folder ".", type: "smb", disabled: true
         # lw.vbguest.installer_options = { allow_kernel_upgrade: true, auto_reboot: true } #Allow using vboxsf from vbox guest additions for filesharing
         # lw.vbguest.installer_hooks[:before_install] = ["dnf -y install bzip2 elfutils-libelf-devel gcc kernel kernel-devel kernel-headers make perl tar", "sleep 2"]
-        vb.customize [
-          "modifyvm", :id,
-          "--paravirt-provider", "hyperv" # for linux guest
-        ]
+
         lw.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_lw2#{number}"
           vb.memory = 4096
           vb.cpus = 2
+          vb.customize [
+            "modifyvm", :id,
+            "--paravirt-provider", "hyperv" # for linux guest
+          ]
         end
         # lw.vm.provision "file", source: "./scripts/zscalerroot.cer", destination: "~/zscalerroot.cer"
         # lw.vm.provision "shell", inline: <<-SHELL    #if rocky linux ... copy zscaler root cert to here
@@ -114,13 +115,14 @@ Vagrant.configure("2") do |config|
         ww.vm.guest = "windows"
         ww.vm.hostname = "ww3#{number}"
         ww.vm.network "private_network", ip: "192.168.56.3#{number}"
-        vb.customize [
-          "modifyvm", :id,
-          "--paravirt-provider", "hyperv" # for linux guest
-        ]
+
         ww.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_ww3#{number}"
           vb.memory = 4048
+          vb.customize [
+            "modifyvm", :id,
+            "--paravirt-provider", "hyperv" # for linux guest
+          ]
         end
         ww.vm.provision "file", source: "./resources/WN_rkeconfig.yaml", destination: "c:/etc/rancher/rke2/config.yaml"
         ww.vm.provision "shell", path: "scripts/windowsguests/preparewindowsnode.ps1"
