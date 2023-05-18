@@ -1,5 +1,5 @@
 token: mysecretjointoken
 tls-san:
   - cp11
-  - homek8s.local
+  - vagrantcluster
 cni: calico
