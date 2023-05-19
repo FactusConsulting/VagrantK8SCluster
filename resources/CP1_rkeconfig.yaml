@@ -1,5 +1,6 @@
 token: mysecretjointoken
 tls-san:
   - cp11
+  - cp12
+  - cp13
   - vagrantcluster
-cni: calico

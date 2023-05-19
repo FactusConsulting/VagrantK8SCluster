@@ -7,6 +7,7 @@ def hostfile_provision_script_windows
     echo "192.168.56.11 vagrantcluster" >>c:\windows\system32\drivers\etc\hosts
     echo "192.168.56.11 cp11" >>c:\windows\system32\drivers\etc\hosts
     echo "192.168.56.12 cp12" >>c:\windows\system32\drivers\etc\hosts
+    echo "192.168.56.13 cp13" >>c:\windows\system32\drivers\etc\hosts
     echo "192.168.56.21 lw21" >>c:\windows\system32\drivers\etc\hosts
     echo "192.168.56.31 ww31" >>c:\windows\system32\drivers\etc\hosts
   SHELL
@@ -18,6 +19,7 @@ def hostfile_provision_script_linux
   echo "192.168.56.11 rancher" | tee -a /etc/hosts
   echo "192.168.56.11 cp11" | tee -a /etc/hosts
   echo "192.168.56.12 cp12" | tee -a /etc/hosts
+  echo "192.168.56.13 cp13" | tee -a /etc/hosts
   echo "192.168.56.21 lw21" | tee -a /etc/hosts
   echo "192.168.56.31 ww31" | tee -a /etc/hosts
   SHELL
@@ -42,7 +44,7 @@ Vagrant.configure("2") do |config|
         cp.vm.network "private_network", ip: "192.168.56.1#{number}", hostname: true
         cp.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_cp1#{number}"
-          vb.memory = 4096
+          vb.memory = 6096
           vb.cpus = 4
           # vb.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]   #When running from WSL2
           vb.customize ["modifyvm", :id, "--uart1", "0x3F8", "4"]

@@ -7,7 +7,7 @@ sudo cp /etc/rancher/rke2/rke2.yaml /home/vagrant/rke2vagrantkubeconfig  && sudo
 # k9s --kubeconfig .\rke2vagrantkubeconfig
 
 
-kubectl get node --kubeconfig /etc/rancher/rke2/rke2.yaml
+sudo /var/lib/rancher/rke2/bin/kubectl get node --kubeconfig /etc/rancher/rke2/rke2.yaml
 
 # sudo journalctl -u rke2-server -f
 
