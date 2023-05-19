@@ -1,6 +1,5 @@
-sudo curl -sfL https://get.rke2.io | sh -
-mkdir -p /etc/rancher/rke2
-sudo cp /home/vagrant/config.yaml /etc/rancher/rke2/config.yaml
+curl -sfL https://get.rke2.io | sudo sh -
+# curl -sfL https://get.rke2.io | sudo INSTALL_RKE2_CHANNEL=latest sh -
 sudo systemctl enable rke2-server.service
 sudo systemctl start rke2-server.service
 sudo cp /etc/rancher/rke2/rke2.yaml /home/vagrant/rke2vagrantkubeconfig

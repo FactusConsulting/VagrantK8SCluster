@@ -25,6 +25,9 @@ end
 
 Vagrant.configure("2") do |config|
   config.vagrant.plugins = ["vagrant-disksize", "vagrant-reload"]
+  if Vagrant.has_plugin?("vagrant-vbguest")
+    config.vbguest.auto_update = false
+  end
   config.vm.provider "virtualbox" do |vb|
       vb.linked_clone = true
       vb.memory = 2048
@@ -32,7 +35,7 @@ Vagrant.configure("2") do |config|
   end
 
     # Linux control plane nodes   Ubuntu
-    (1..2).each do |number|
+    (1..3).each do |number|
       config.vm.define "cp1#{number}" do |cp|
         cp.vm.box = "ubuntu/jammy64"
         cp.vm.hostname = "cp1#{number}"
@@ -41,6 +44,7 @@ Vagrant.configure("2") do |config|
           vb.name = "vagrantk8s_cp1#{number}"
           vb.memory = 4096
           vb.cpus = 2
+          vb.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]   #When running from WSL2
           vb.customize ["modifyvm", :id, "--uart1", "0x3F8", "4"]
           vb.customize ["modifyvm", :id, "--uartmode1", "file", File::NULL]
           vb.customize [
@@ -52,10 +56,10 @@ Vagrant.configure("2") do |config|
         cp.vm.provision "file", source: "../resources/certs/zscalerroot.cer", destination: "~/zscalerroot.cer"
         # Need to apply the cert
         cp.vm.provision "shell", inline: hostfile_provision_script_linux
-        cp.vm.provision "shell", path: "../scripts/linuxguests/minimal_nodeprereq.sh"
         cp.vm.provision "file", source: "../resources/CP#{number}_rkeconfig.yaml", destination: "~/config.yaml"
+        cp.vm.provision "shell", path: "../scripts/linuxguests/ubuntu_nodeprereq.sh"
         cp.vm.provision :reload
-        cp.vm.provision "shell", path: "../scripts/linuxguests/RKE2InstallscriptCP.sh"
+        # cp.vm.provision "shell", path: "../scripts/linuxguests/RKE2InstallscriptCP.sh"
       end
     end # Control plane end
 

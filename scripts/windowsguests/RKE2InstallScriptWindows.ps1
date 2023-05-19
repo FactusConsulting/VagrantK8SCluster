@@ -18,3 +18,5 @@ $env:PATH+=";c:\var\lib\rancher\rke2\bin;c:\usr\local\bin"
 rke2.exe agent service --add
 get-service rke2 | start-service
 choco install vim -y
+
+cp /home/vagrant/config.yaml /etc/rancher/rke2/config.yaml

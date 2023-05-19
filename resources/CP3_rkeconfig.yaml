@@ -1,0 +1,6 @@
+server: https://vagrantcluster:9345
+token: mysecretjointoken
+tls-san:
+  - cp11
+  - vagrantcluster
+cni: calico
