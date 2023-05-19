@@ -5,3 +5,4 @@ tls-san:
   - cp12
   - cp13
   - vagrantcluster
+node-ip: 192.168.56.12
