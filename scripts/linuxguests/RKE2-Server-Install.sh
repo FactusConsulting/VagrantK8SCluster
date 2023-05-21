@@ -9,15 +9,12 @@ k9s --kubeconfig .\rke2vagrantkubeconfig
 
 
 sudo /var/lib/rancher/rke2/bin/kubectl get node --kubeconfig /etc/rancher/rke2/rke2.yaml
-
 sudo /var/lib/rancher/rke2/bin/crictl -r unix:///run/k3s/containerd/containerd.sock
 
-sudo journalctl -u rke2-server -f
+
 
 sudo /var/lib/rancher/rke2/bin/kubectl get node --kubeconfig=/etc/rancher/rke2/rke2.yaml
 # sudo cat /var/lib/rancher/rke2/server/node-token
-sudo /var/lib/rancher/rke2/bin/crictl
-# sudo /var/lib/rancher/rke2/bin/ctr
 
 
 #sudo mkdir /etc/rancher /etc/rancher/rke2

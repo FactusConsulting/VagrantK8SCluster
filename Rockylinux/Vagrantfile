@@ -1,8 +1,35 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+def hostfile_provision_script_windows
+  <<-SHELL
+    echo "192.168.56.11 rancher" >>c:\windows\system32\drivers\etc\hosts
+    echo "192.168.56.11 vagrantcluster" >>c:\windows\system32\drivers\etc\hosts
+    echo "192.168.56.11 cp11" >>c:\windows\system32\drivers\etc\hosts
+    echo "192.168.56.12 cp12" >>c:\windows\system32\drivers\etc\hosts
+    echo "192.168.56.13 cp13" >>c:\windows\system32\drivers\etc\hosts
+    echo "192.168.56.21 lw21" >>c:\windows\system32\drivers\etc\hosts
+    echo "192.168.56.31 ww31" >>c:\windows\system32\drivers\etc\hosts
+  SHELL
+end
+
+def hostfile_provision_script_linux
+  <<-SHELL
+  echo "192.168.56.11 vagrantcluster" | tee -a /etc/hosts
+  echo "192.168.56.11 rancher" | tee -a /etc/hosts
+  echo "192.168.56.11 cp11" | tee -a /etc/hosts
+  echo "192.168.56.12 cp12" | tee -a /etc/hosts
+  echo "192.168.56.13 cp13" | tee -a /etc/hosts
+  echo "192.168.56.21 lw21" | tee -a /etc/hosts
+  echo "192.168.56.31 ww31" | tee -a /etc/hosts
+  SHELL
+end
+
 Vagrant.configure("2") do |config|
   config.vagrant.plugins = ["vagrant-disksize", "vagrant-reload"]
+  if Vagrant.has_plugin?("vagrant-vbguest")
+    config.vbguest.auto_update = false
+  end
   config.vm.provider "virtualbox" do |vb|
       vb.linked_clone = true
       vb.memory = 2048
@@ -18,43 +45,38 @@ Vagrant.configure("2") do |config|
         cp.vm.network "private_network", ip: "192.168.56.1#{number}", hostname: true
         cp.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_cp1#{number}"
-          vb.memory = 4096
-          vb.cpus = 2
+          vb.memory = 6096
+          vb.cpus = 4
           vb.customize [
             "modifyvm", :id,
             "--paravirt-provider", "hyperv"
           ]
         end
         cp.vm.synced_folder ".", type: "smb", disabled: true
-        cp.vm.provision "file", source: "./resources/certs/zscalerroot.cer", destination: "~/zscalerroot.cer"
+        cp.vm.provision "file", source: "../resources/certs/zscalerroot.cer", destination: "~/zscalerroot.cer"
         cp.vm.provision "shell", inline: <<-SHELL
-          cp /home/vagrant/resources/certs/zscalerroot.cer /etc/pki/ca-trust/source/anchors
+          cp /home/vagrant/zscalerroot.cer /etc/pki/ca-trust/source/anchors
           update-ca-trust
         SHELL
         cp.vm.provision "shell", inline: <<-SHELL
           dnf install -y cloud-utils-growpart
+          echo "running growpart"
           growpart /dev/sda 1
+          echo "running xfs_growth"
           xfs_growfs /dev/sda1
         SHELL
-        cp.vm.provision "shell", inline: <<-SHELL
-          echo "192.168.56.11 rancher" | tee -a /etc/hosts
-          echo "192.168.56.11 vagrantcluster" | tee -a /etc/hosts
-          echo "192.168.56.11 cp11" | tee -a /etc/hosts
-          echo "192.168.56.12 cp12" | tee -a /etc/hosts
-          echo "192.168.56.21 lw21" | tee -a /etc/hosts
-          echo "192.168.56.31 ww31" | tee -a /etc/hosts
-        SHELL
-        cp.vm.provision "shell", path: "scripts/linuxguests/minimal_nodeprereq.sh"
-        cp.vm.provision "file", source: "./resources/CP#{number}_rkeconfig.yaml", destination: "~/config.yaml"
+        cp.vm.provision "shell", inline: hostfile_provision_script_linux
+        cp.vm.provision "file", source: "../resources/CP#{number}_rkeconfig.yaml", destination: "~/config.yaml"
+        cp.vm.provision "shell", path: "../scripts/linuxguests/rocky_nodeprereq.sh"
         cp.vm.provision :reload
-        cp.vm.provision "shell", path: "scripts/linuxguests/RKE2InstallscriptCP.sh"
+        #cp.vm.provision "shell", path: "../scripts/linuxguests/RKE2-Server-Install.sh"
       end
     end # Control plane end
 
     # LinuxWorkers
     (1..1).each do |number|
       config.vm.define "lw2#{number}" do |lw|
-        lw.vm.box = "rockylinux/8"
+        lw.vm.box = "rockylinux/9"
         lw.disksize.size = '50GB'
         lw.vm.hostname = "lw2#{number}"
         lw.vm.network "private_network", ip: "192.168.56.2#{number}", hostname: true
@@ -75,21 +97,14 @@ Vagrant.configure("2") do |config|
         SHELL
         lw.vm.provision "shell", inline: <<-SHELL
           dnf install -y cloud-utils-growpart
-          growpart /dev/sda 1
-          xfs_growfs /dev/sda1
+          growpart /dev/sda 5
+          xfs_growfs /dev/sda5
         SHELL
-        lw.vm.provision "shell", inline: <<-SHELL    #add entries to the hostfile
-          echo "192.168.56.11 rancher" | tee -a /etc/hosts
-          echo "192.168.56.11 vagrantcluster" | tee -a /etc/hosts
-          echo "192.168.56.11 cp11" | tee -a /etc/hosts
-          echo "192.168.56.12 cp12" | tee -a /etc/hosts
-          echo "192.168.56.21 lw21" | tee -a /etc/hosts
-          echo "192.168.56.31 ww31" | tee -a /etc/hosts
-        SHELL
-        lw.vm.provision "file", source: "./resources/WN_rkeconfig.yaml", destination: "~/config.yaml"
-        lw.vm.provision "shell", path: "scripts/linuxguests/nodeprereq.sh"
+        lw.vm.provision "shell", inline: hostfile_provision_script_linux
+        lw.vm.provision "file", source: "../resources/lw_rkeconfig.yaml", destination: "~/config.yaml"
+        lw.vm.provision "shell", path: "../scripts/linuxguests/rocky_nodeprereq.sh.sh"
         lw.vm.provision :reload
-        lw.vm.provision "shell", path: "scripts/linuxguests/RKE2InstallscriptWN.sh"
+        lw.vm.provision "shell", path: "../scripts/linuxguests/RKE2-Agent-Install.sh"
 
       end
     end  #Linuxworkers end
@@ -112,17 +127,11 @@ Vagrant.configure("2") do |config|
             "--paravirt-provider", "hyperv" # for linux guest
           ]
         end
-        ww.vm.provision "file", source: "./resources/WN_rkeconfig.yaml", destination: "c:/etc/rancher/rke2/config.yaml"
-        ww.vm.provision "shell", path: "scripts/windowsguests/preparewindowsnode.ps1"
+        ww.vm.provision "file", source: "../resources/ww_rkeconfig.yaml", destination: "c:/etc/rancher/rke2/config.yaml"
+        ww.vm.provision "shell", path: "../scripts/windowsguests/preparewindowsnode.ps1"
         ww.vm.provision :reload
-        ww.vm.provision "shell", inline: <<-SHELL
-          echo "192.168.56.11 rancher" >>c:\windows\system32\drivers\etc\hosts
-          echo "192.168.56.11 cp11" >>c:\windows\system32\drivers\etc\hosts
-          echo "192.168.56.12 cp12" >>c:\windows\system32\drivers\etc\hosts
-          echo "192.168.56.21 lw21" >>c:\windows\system32\drivers\etc\hosts
-          echo "192.168.56.31 ww31" >>c:\windows\system32\drivers\etc\hosts
-        SHELL
-        ww.vm.provision "shell", path: "scripts/windowsguests/RKE2InstallScriptWindows.ps1"
+        ww.vm.provision "shell", inline: hostfile_provision_script_windows
+        ww.vm.provision "shell", path: "scripts/windowsguests/RKE2-Agent-Install-Windows.ps1"
       end
     end # Windows workers end
 
