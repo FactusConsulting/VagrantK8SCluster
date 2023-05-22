@@ -8,14 +8,16 @@ vagrant scp cp11:~/rke2vagrantkubeconfig rke2vagrantkubeconfig
 k9s --kubeconfig .\rke2vagrantkubeconfig
 
 
+#Troubleshooting
+sudo journalctl -u rke2-server
 sudo /var/lib/rancher/rke2/bin/kubectl get node --kubeconfig /etc/rancher/rke2/rke2.yaml
 sudo /var/lib/rancher/rke2/bin/crictl -r unix:///var/run/k3s/containerd/containerd.sock
+cat /var/lib/rancher/rke2/agent/logs/kubelet.log
+sudo cat /var/lib/rancher/rke2/agent/containerd/containerd.log
+cat /var/lib/rancher/rke2/agent/kubelet.kubeconfig
+sudo cat /var/lib/rancher/rke2/agent/etc/containerd/config.toml
 
+sudo /var/lib/rancher/rke2/bin/containerd config default
 
-
-sudo /var/lib/rancher/rke2/bin/kubectl get node --kubeconfig=/etc/rancher/rke2/rke2.yaml
 # sudo cat /var/lib/rancher/rke2/server/node-token
-
-
-#sudo mkdir /etc/rancher /etc/rancher/rke2
-#sudo nano /etc/rancher/rke2/config.yaml
+# sudo nano /etc/rancher/rke2/config.yaml
