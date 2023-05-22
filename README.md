@@ -59,3 +59,22 @@ All machines will get an IP address in the 192.168.56.0 space.
 
 The Vagrant file supports 3 of each type of machine, and one domain controller for testing failover and scaling scenarios.
 
+## RKE2 commands
+
+```shell
+curl -sfL https://get.rke2.io | sudo INSTALL_RKE2_CHANNEL=latest sh -
+vagrant scp cp11:~/rke2vagrantkubeconfig rke2vagrantkubeconfig
+k9s --kubeconfig .\rke2vagrantkubeconfig
+
+#Troubleshooting
+sudo nano /etc/rancher/rke2/config.yaml
+sudo journalctl -u rke2-server
+sudo /var/lib/rancher/rke2/bin/kubectl get node --kubeconfig /etc/rancher/rke2/rke2.yaml
+sudo /var/lib/rancher/rke2/bin/crictl -r unix:///var/run/k3s/containerd/containerd.sock
+cat /var/lib/rancher/rke2/agent/logs/kubelet.log
+sudo cat /var/lib/rancher/rke2/agent/containerd/containerd.log
+cat /var/lib/rancher/rke2/agent/kubelet.kubeconfig
+sudo cat /var/lib/rancher/rke2/agent/etc/containerd/config.toml
+
+sudo /var/lib/rancher/rke2/bin/containerd config default
+```

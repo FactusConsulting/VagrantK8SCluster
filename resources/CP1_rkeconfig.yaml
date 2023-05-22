@@ -10,4 +10,3 @@ kube-apiserver-arg:
   - "oidc-issuer-url=https://sts.windows.net/05e4a2de-78b6-410e-a14b-686a5ac65d61/"
   - "oidc-username-claim=email"
   - "oidc-groups-claim=groups"
-#  - 'oidc-groups-prefix=""'
