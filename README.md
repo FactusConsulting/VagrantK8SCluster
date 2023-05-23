@@ -78,3 +78,17 @@ sudo cat /var/lib/rancher/rke2/agent/etc/containerd/config.toml
 
 sudo /var/lib/rancher/rke2/bin/containerd config default
 ```
+
+
+## Adding to Rancher
+
+curl --insecure -sfL https://rd.local/v3/import/lfshmb22wprlrk7ltxmfrlbcrk2lp5jphqp8slzcxzms2fmrpr2jt9_c-m-7zg9kv2s.yaml | sudo /var/lib/rancher/rke2/bin/kubectl apply -f -  --kubeconfig /etc/rancher/rke2/rke2.yaml
+ sudo /var/lib/rancher/rke2/bin/kubectl get deployment --all-namespaces --kubeconfig /etc/rancher/rke2/rke2.yaml
+ sudo /var/lib/rancher/rke2/bin/kubectl edit deployment cattle-cluster-agent -n cattle-system --kubeconfig /etc/rancher/rke2/rke2.yaml
+
+sudo /var/lib/rancher/rke2/bin/kubectl logs cattle-cluster-agent-7f86bff4cc-kkblv -n cattle-system --kubeconfig /etc/rancher/rke2/rke2.yaml
+
+hostAliases:
+  - ip: "172.23.4.7"
+    hostnames:
+    - "rd.local"
