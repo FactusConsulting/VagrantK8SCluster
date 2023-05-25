@@ -18,22 +18,6 @@ From a command prompt at the RancherDev folder, run:
 vagrant up cp11
 rke up
 ```
-
-Watch for the message "Finished building Kubernetes cluster successfully" and then Install Rancher using Helm  (todo)
-
-```
-add helm char
-helm install ... mumbling mumbling
-```
-
-Look for the message .... blabla  and then do:
-
-```
-vagrant up cp12 lw21 ww31
-
-Setup cluster by running the magnificent HCL chart that Jesper builds
-```
-
 ### Prerequisites
 
 Install vagrant.   `choco install vagrant -y`
@@ -87,6 +71,7 @@ curl --insecure -sfL https://rd.local/v3/import/lfshmb22wprlrk7ltxmfrlbcrk2lp5jp
  sudo /var/lib/rancher/rke2/bin/kubectl edit deployment cattle-cluster-agent -n cattle-system --kubeconfig /etc/rancher/rke2/rke2.yaml
 
 sudo /var/lib/rancher/rke2/bin/kubectl logs cattle-cluster-agent-7f86bff4cc-kkblv -n cattle-system --kubeconfig /etc/rancher/rke2/rke2.yaml
+
 
 hostAliases:
   - ip: "172.23.4.7"
