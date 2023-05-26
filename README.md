@@ -1,49 +1,79 @@
-# VagrantK8SCluster
+# VagrantK8S Cluster for testing out Rancher
 
-An opinionated Vagrant based setup for testing Kubernetes across Linux and Windows on Hyper-v
+This folder contains the infrastructure needed for testing and developing an automated setup of a Rancher kubernetes cluster.
 
-## Background
+## Design
 
-As a windows based developer doing windows docker, I missed having a setup where I could have a Kubernetes setup in Vagrant on top of Hyper-v, instead of having to juggle Hyper-v and Virtual Box.
+This setup will spin up a control plane, install RKE kubernetes on there and install Rancher from a HELM chart.
 
-As of now, the windows node is not automatically joined to the cluster. Work is ongoing to build a domain controller and join the windows node to the domain, to test windows based GMSA access to resources.
+Then it will deploy a new Rancher RKE kubernetes cluster across 1 Control PLane, 1 linux worker node and one windows 2019 worker node.
+
+This setup is based on rocky linux 8.5, but can and should be tested on ubuntu 20.04 as well.
 
 ## Quick start
 
+From a command prompt at the RancherDev folder, run:
+
+```
+vagrant up cp11
+rke up
+```
 ### Prerequisites
 
-Run this on a windows 10 1709, windows server 2016 or later.
-Install the Hyper-v feature
-Install latest version of Vagrant (2.2.4 or later)
+Install vagrant.   `choco install vagrant -y`
+Install RKE for windows   `choco install rke -y`
 
-### Setup
+### Setup and background
 
-Clone the repository and run these commands in a powershell admin prompt:
+#### Abbreviations:
+CP control plane nodes, LW  Linux worker nodes,  WW Windows Worker Nodes
 
-Host credentials are needed to share the root of the vagrant folder with the guest machines. This prompted once and set in an environment variable in the active session. Make sure to close the powershell session when the setup is complete to remove the variable.
+#### Setup
 
-`.\scripts\host\set-credentials.ps1`
+`vagrant up`  will start all nodes
 
-This command creates a single Master, one linux worker node and one windows worker node. The linux node is automatically joined, while work is outstanding to get the windows node joined.
-
-`vagrant up m1 ln1 wn1`
-
-All machines will get an IP address in the 192.168.10.0 space.
+All machines will get an IP address in the 192.168.56.0 space.
 
 |Machine type           |Machinenames  |IPAddress  |
 |---------              |---------|---------|
-| Master                |M1       |192.162.10.11|
-| Linux worker node     |LN1      |192.162.10.21|
-| Windows worker node  |WN1       |192.162.10.31|
-| Windows Domain controller|DC    |192.162.10.40|
+| Rancher Server        |cp11       |192.168.56.11|
+| Control Plane         |cp12    |192.168.56.12|
+| Linux worker node     |lw21      |192.168.56.21|
+| Windows worker node  |ww31       |192.168.56.31|
 
 The Vagrant file supports 3 of each type of machine, and one domain controller for testing failover and scaling scenarios.
 
-## Future features not yet implemented
+## RKE2 commands
 
-* Domain controller setup and joining the windows nodes to the dc for testing GMSA based access from pods.
-* More masters and joining masters as master nodes
-* More automated and robust setup of Windows nodes
-* Set up persistent storage
-* When Virtual Box 6 on windows gets their hyper-v usage issues ironed out, this might be migrated to using Virtual Box.
-* Migrate scripts from just raw scripts to using vagrant. Preferably vagrant running in a linux docker on windows with the microsoft/ansible container.
+```shell
+curl -sfL https://get.rke2.io | sudo INSTALL_RKE2_CHANNEL=latest sh -
+vagrant scp cp11:~/rke2vagrantkubeconfig rke2vagrantkubeconfig
+k9s --kubeconfig .\rke2vagrantkubeconfig
+
+#Troubleshooting
+sudo nano /etc/rancher/rke2/config.yaml
+sudo journalctl -u rke2-server
+sudo /var/lib/rancher/rke2/bin/kubectl get node --kubeconfig /etc/rancher/rke2/rke2.yaml
+sudo /var/lib/rancher/rke2/bin/crictl -r unix:///var/run/k3s/containerd/containerd.sock
+cat /var/lib/rancher/rke2/agent/logs/kubelet.log
+sudo cat /var/lib/rancher/rke2/agent/containerd/containerd.log
+cat /var/lib/rancher/rke2/agent/kubelet.kubeconfig
+sudo cat /var/lib/rancher/rke2/agent/etc/containerd/config.toml
+
+sudo /var/lib/rancher/rke2/bin/containerd config default
+```
+
+
+## Adding to Rancher
+
+curl --insecure -sfL https://rd.local/v3/import/lfshmb22wprlrk7ltxmfrlbcrk2lp5jphqp8slzcxzms2fmrpr2jt9_c-m-7zg9kv2s.yaml | sudo /var/lib/rancher/rke2/bin/kubectl apply -f -  --kubeconfig /etc/rancher/rke2/rke2.yaml
+ sudo /var/lib/rancher/rke2/bin/kubectl get deployment --all-namespaces --kubeconfig /etc/rancher/rke2/rke2.yaml
+ sudo /var/lib/rancher/rke2/bin/kubectl edit deployment cattle-cluster-agent -n cattle-system --kubeconfig /etc/rancher/rke2/rke2.yaml
+
+sudo /var/lib/rancher/rke2/bin/kubectl logs cattle-cluster-agent-7f86bff4cc-kkblv -n cattle-system --kubeconfig /etc/rancher/rke2/rke2.yaml
+
+
+hostAliases:
+  - ip: "172.23.4.7"
+    hostnames:
+    - "rd.local"

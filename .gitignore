@@ -5,7 +5,7 @@ join_cmd.sh
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
-
+.vscode/
 .vagrant/machines/master/hyperv/Virtual Hard Disks/ubuntu-18.04-amd64.vhdx
 .vagrant/machines/master/hyperv/creator_uid
 .vagrant/machines/master/hyperv/id
@@ -19,3 +19,7 @@ join_cmd.sh
 .vagrant/rgloader/loader.rb
 .vagrant/
 k/
+
+kube_config_cluster.yml
+cluster.rkestate
+rke2kubeconfig

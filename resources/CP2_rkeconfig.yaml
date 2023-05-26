@@ -1,0 +1,9 @@
+server: https://vagrantcluster:9345
+token: mysecretjointoken
+tls-san:
+  - cp11
+  - cp12
+  - cp13
+  - vagrantcluster
+node-ip: 192.168.56.12
+
