@@ -6,3 +6,8 @@ tls-san:
   - cp13
   - vagrantcluster
 node-ip: 192.168.56.13
+kube-apiserver-arg:
+  - "oidc-client-id=081dc774-0f32-4e8e-9d35-xxxxxxxxxxxxx"
+  - "oidc-issuer-url=https://sts.windows.net/05e4a2de-78b6-410e-a14b-xxxxxxxxxxxxxxx/"
+  - "oidc-username-claim=email"
+  - "oidc-groups-claim=groups"

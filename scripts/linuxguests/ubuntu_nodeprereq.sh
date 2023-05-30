@@ -8,7 +8,3 @@ sudo systemctl stop ufw
 sudo systemctl disable ufw
 
 mkdir /home/vagrant/.kube
-echo 'export KUBECONFIG="/home/vagrant/.kube/config"' >> ~/.bashrc
-echo "alias k='kubectl'" >> ~/.bashrc
-sudo cp -i /etc/rancher/rke2/rke2.yaml home/vagrant/.kube/config
-sudo chown $(id -u):$(id -g) /home/vagrant/.kube/config
