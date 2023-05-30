@@ -4,31 +4,44 @@ This folder contains the infrastructure needed for testing and developing an aut
 
 ## Design
 
-This setup will spin up a control plane, install RKE kubernetes on there and install Rancher from a HELM chart.
+This setup will spin up 3 control plane nodes a linux and a windows worker, using RKE2 from the stable channel.
 
-Then it will deploy a new Rancher RKE kubernetes cluster across 1 Control PLane, 1 linux worker node and one windows 2019 worker node.
+This setup is based on Ubuntu 2204 or Rocky Linux 9.x. You decide which distributions to use by going to either the Ubuntu or Rocky Linux folder and running `vagrant up`.  Currently there are issues with the Rocky Linux installation, so use the Ubuntu one for testing.
 
-This setup is based on rocky linux 8.5, but can and should be tested on ubuntu 20.04 as well.
+
+## Prerequisites
+
+First you must install Vagrant version 2.3.4 and the latest version of Virtualbox. At time of writing this is 7.0.6 but anything later is fine
+
+[Vagrant](https://developer.hashicorp.com/vagrant/downloads)  or `choco install vagrant -y --version 2.3.4`
+
+[Virtualbox](https://www.virtualbox.org/) or `choco install virtualbox -y`
 
 ## Quick start
 
-From a command prompt at the RancherDev folder, run:
+To start up just one of the control plane nodes:
 
-```
-vagrant up cp11
-rke up
-```
-### Prerequisites
+1. From a command prompt at the Ubuntu folder, run:
 
-Install vagrant.   `choco install vagrant -y`
-Install RKE for windows   `choco install rke -y`
+    ```shell
+    vagrant up cp11
+    ```
 
-### Setup and background
+    or if you are brave or have the computer resources on your laptop, start all three controlplane nodes with `vagrant up cp11 cp12 cp13`
 
-#### Abbreviations:
-CP control plane nodes, LW  Linux worker nodes,  WW Windows Worker Nodes
+2. To start and add a Linux worker and the Windows node run:
 
-#### Setup
+    ```shell
+    vagrant up cp11
+    ```
+
+## Detailed setup and background
+
+### Abbreviations
+
+CP is short for control plane nodes, LW  Linux worker nodes,  WW Windows Worker Nodes
+
+### Setup
 
 `vagrant up`  will start all nodes
 
@@ -36,12 +49,27 @@ All machines will get an IP address in the 192.168.56.0 space.
 
 |Machine type           |Machinenames  |IPAddress  |
 |---------              |---------|---------|
-| Rancher Server        |cp11       |192.168.56.11|
-| Control Plane         |cp12    |192.168.56.12|
+| Control plane 1        |cp11       |192.168.56.11|
+| Control Plane 2        |cp12    |192.168.56.12|
+| Control Plane 3        |cp13    |192.168.56.13|
 | Linux worker node     |lw21      |192.168.56.21|
 | Windows worker node  |ww31       |192.168.56.31|
 
-The Vagrant file supports 3 of each type of machine, and one domain controller for testing failover and scaling scenarios.
+
+### After startup
+
+To access the nodes from your local pc, you need to put the following into your hosts file
+
+```shell
+  192.168.56.11 vagrantcluster
+  192.168.56.11 cp11
+  192.168.56.12 cp12
+  192.168.56.13 cp13
+  192.168.56.21 lw21
+  192.168.56.31 ww31
+```
+
+And then you must copy 
 
 ## RKE2 commands
 
@@ -62,6 +90,11 @@ sudo cat /var/lib/rancher/rke2/agent/etc/containerd/config.toml
 
 sudo /var/lib/rancher/rke2/bin/containerd config default
 ```
+
+Get the RKE vagrant kubeconfig
+vagrant plugin install vagrant-scp
+vagrant scp cp11:~/rke2vagrantkubeconfig rke2vagrantkubeconfig
+
 
 
 ## Adding to Rancher
