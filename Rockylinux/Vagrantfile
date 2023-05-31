@@ -3,20 +3,19 @@
 
 def hostfile_provision_script_windows
   <<-SHELL
-    echo "192.168.56.11 rancher" >>c:\windows\system32\drivers\etc\hosts
-    echo "192.168.56.11 vagrantcluster" >>c:\windows\system32\drivers\etc\hosts
-    echo "192.168.56.11 cp11" >>c:\windows\system32\drivers\etc\hosts
-    echo "192.168.56.12 cp12" >>c:\windows\system32\drivers\etc\hosts
-    echo "192.168.56.13 cp13" >>c:\windows\system32\drivers\etc\hosts
-    echo "192.168.56.21 lw21" >>c:\windows\system32\drivers\etc\hosts
-    echo "192.168.56.31 ww31" >>c:\windows\system32\drivers\etc\hosts
+    Write
+    echo 192.168.56.11 vagrantcluster >>c:\windows\system32\drivers\etc\hosts
+    echo 192.168.56.11 cp11 >>c:\windows\system32\drivers\etc\hosts
+    echo 192.168.56.12 cp12 >>c:\windows\system32\drivers\etc\hosts
+    echo 192.168.56.13 cp13 >>c:\windows\system32\drivers\etc\hosts
+    echo 192.168.56.21 lw21 >>c:\windows\system32\drivers\etc\hosts
+    echo 192.168.56.31 ww31 >>c:\windows\system32\drivers\etc\hosts
   SHELL
 end
 
 def hostfile_provision_script_linux
   <<-SHELL
   echo "192.168.56.11 vagrantcluster" | tee -a /etc/hosts
-  echo "192.168.56.11 rancher" | tee -a /etc/hosts
   echo "192.168.56.11 cp11" | tee -a /etc/hosts
   echo "192.168.56.12 cp12" | tee -a /etc/hosts
   echo "192.168.56.13 cp13" | tee -a /etc/hosts
@@ -113,7 +112,7 @@ Vagrant.configure("2") do |config|
     (1..1).each do |number|
       config.vm.define "ww3#{number}" do |ww|
         ww.vm.box = "gusztavvargadr/windows-server-core"
-        # ww.vm.box_version = "1809.0.2207"
+        ww.vm.box_version = "1809.0.2207"
         ww.vm.communicator = "winrm"
         ww.vm.guest = "windows"
         ww.vm.hostname = "ww3#{number}"
@@ -121,7 +120,8 @@ Vagrant.configure("2") do |config|
 
         ww.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_ww3#{number}"
-          vb.memory = 4048
+          vb.memory = 8048
+          vb.cpus = 4
           vb.customize [
             "modifyvm", :id,
             "--paravirt-provider", "hyperv" # for linux guest
@@ -129,6 +129,14 @@ Vagrant.configure("2") do |config|
         end
         ww.vm.provision "file", source: "../resources/ww_rkeconfig.yaml", destination: "c:/etc/rancher/rke2/config.yaml"
         ww.vm.provision "shell", path: "../scripts/windowsguests/preparewindowsnode.ps1"
+        config.vm.provision "shell", inline: <<-SHELL
+             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.11 vagrantcluster"
+             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.11 cp11"
+             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.12 cp12"
+             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.13 cp13"
+             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.21 lw21"
+             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.31 ww31"
+          SHELL
         ww.vm.provision :reload
         ww.vm.provision "shell", inline: hostfile_provision_script_windows
         ww.vm.provision "shell", path: "scripts/windowsguests/RKE2-Agent-Install-Windows.ps1"

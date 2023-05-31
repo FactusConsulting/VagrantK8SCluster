@@ -4,6 +4,7 @@ tls-san:
   - cp12
   - cp13
   - vagrantcluster
+cni: calico
 node-ip: 192.168.56.11
 kube-apiserver-arg:
   - "oidc-client-id=081dc774-0f32-4e8e-9d35-xxxxxxxxxxxxx"

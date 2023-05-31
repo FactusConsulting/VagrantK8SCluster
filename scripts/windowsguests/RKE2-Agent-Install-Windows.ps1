@@ -1,3 +1,6 @@
+Write-Host "Installing and Configuring RKE2" -ForegroundColor Magenta
+Write-Output "Installing and Configuring RKE2"
+
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/rancher/rke2/master/install.ps1 -Outfile install.ps1
 New-Item -Type Directory c:/etc/rancher/rke2 -Force
 
