@@ -12,9 +12,7 @@ if [ "$hostname" == "cp11" ]; then
 fi
 
 sudo ln -s /var/lib/rancher/rke2/bin/kubectl /usr/local/bin/kubectl
-sodu echo 'export KUBECONFIG="/home/vagrant/.kube/config"' >> /home/vagrant/.bashrc
 sudo echo "alias k='kubectl'" >> /home/vagrant/.bashrc
-sudo source /home/vagrant/.bashrc
 mkdir /home/vagrant/.kube
 sudo cp -i /etc/rancher/rke2/rke2.yaml /home/vagrant/.kube/config
 sudo chown -R vagrant /home/vagrant/.kube/

@@ -32,8 +32,13 @@ To start up just one of the control plane nodes:
 2. To start and add a Linux worker and the Windows node run:
 
     ```shell
-    vagrant up cp11
+    vagrant up lw21
     ```
+
+3. Windows workers
+
+It is technically possible to add windows workers to the cluster built here, and it is included in the Vagrantfile, **but it is not currently supported and there are no guarantees this setup will run**
+Thisfeature  will be tested and fixed in future versions.
 
 ## Detailed setup and background
 
@@ -73,12 +78,13 @@ To access the nodes from your local pc, you need to put the following into your 
 #### Kubeconfig file
 
 The kubeconfig file will be copied to the Ubuntu folder as rke2vagrantconfig
-
 Run this command to set the kubeconfig to this file for this powershell session  `$env:KUBECONFIG="rke2vagrantkubeconfig"`
 
-Try running kubectl get node and see if you can see
+Try running kubectl get node and see if you can see the new nodes and wait a few minutes untill they report a ready state.
 
-## RKE2 commands
+When you have nodes reporting ready, you have a running cluster.
+
+### Usefull RKE2 commands
 
 ```shell
 curl -sfL https://get.rke2.io | sudo INSTALL_RKE2_CHANNEL=latest sh -
@@ -86,34 +92,19 @@ vagrant scp cp11:~/rke2vagrantkubeconfig rke2vagrantkubeconfig
 k9s --kubeconfig .\rke2vagrantkubeconfig
 
 #Troubleshooting
-sudo nano /etc/rancher/rke2/config.yaml
-sudo journalctl -u rke2-server
+sudo journalctl -u rke2-server   #get logs from the rke2 service
 sudo /var/lib/rancher/rke2/bin/kubectl get node --kubeconfig /etc/rancher/rke2/rke2.yaml
-sudo /var/lib/rancher/rke2/bin/crictl -r unix:///var/run/k3s/containerd/containerd.sock
-cat /var/lib/rancher/rke2/agent/logs/kubelet.log
-sudo cat /var/lib/rancher/rke2/agent/containerd/containerd.log
-cat /var/lib/rancher/rke2/agent/kubelet.kubeconfig
-sudo cat /var/lib/rancher/rke2/agent/etc/containerd/config.toml
-
-sudo /var/lib/rancher/rke2/bin/containerd config default
+sudo /var/lib/rancher/rke2/bin/crictl -r unix:///var/run/k3s/containerd/containerd.sock   # get lowlevel container logs from containerd
+cat /var/lib/rancher/rke2/agent/logs/kubelet.log   # read the kubelet log from servers and agents
+sudo cat /var/lib/rancher/rke2/agent/containerd/containerd.log      # Get the containerd log itself
+cat /var/lib/rancher/rke2/agent/kubelet.kubeconfig      # check the kubelet config
+sudo cat /var/lib/rancher/rke2/agent/etc/containerd/config.toml     # and the containerd config
+sudo /var/lib/rancher/rke2/bin/containerd config default            # if you need to change containerd default config
 ```
 
-Get the RKE vagrant kubeconfig
+Get the RKE vagrant kubeconfig if not using shared folders from vagrant
+
+```shell
 vagrant plugin install vagrant-scp
 vagrant scp cp11:~/rke2vagrantkubeconfig rke2vagrantkubeconfig
-
-
-
-## Adding to Rancher
-
-curl --insecure -sfL https://rd.local/v3/import/lfshmb22wprlrk7ltxmfrlbcrk2lp5jphqp8slzcxzms2fmrpr2jt9_c-m-7zg9kv2s.yaml | sudo /var/lib/rancher/rke2/bin/kubectl apply -f -  --kubeconfig /etc/rancher/rke2/rke2.yaml
- sudo /var/lib/rancher/rke2/bin/kubectl get deployment --all-namespaces --kubeconfig /etc/rancher/rke2/rke2.yaml
- sudo /var/lib/rancher/rke2/bin/kubectl edit deployment cattle-cluster-agent -n cattle-system --kubeconfig /etc/rancher/rke2/rke2.yaml
-
-sudo /var/lib/rancher/rke2/bin/kubectl logs cattle-cluster-agent-7f86bff4cc-kkblv -n cattle-system --kubeconfig /etc/rancher/rke2/rke2.yaml
-
-
-hostAliases:
-  - ip: "172.23.4.7"
-    hostnames:
-    - "rd.local"
+``
