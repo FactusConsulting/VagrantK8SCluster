@@ -55,8 +55,9 @@ All machines will get an IP address in the 192.168.56.0 space.
 | Linux worker node     |lw21      |192.168.56.21|
 | Windows worker node  |ww31       |192.168.56.31|
 
-
 ### After startup
+
+#### Hosts file changes
 
 To access the nodes from your local pc, you need to put the following into your hosts file
 
@@ -69,7 +70,13 @@ To access the nodes from your local pc, you need to put the following into your 
   192.168.56.31 ww31
 ```
 
-And then you must copy 
+#### Kubeconfig file
+
+The kubeconfig file will be copied to the Ubuntu folder as rke2vagrantconfig
+
+Run this command to set the kubeconfig to this file for this powershell session  `$env:KUBECONFIG="rke2vagrantkubeconfig"`
+
+Try running kubectl get node and see if you can see
 
 ## RKE2 commands
 
