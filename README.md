@@ -8,6 +8,11 @@ This setup will spin up 3 control plane nodes a linux and a windows worker, usin
 
 This setup is based on Ubuntu 2204 or Rocky Linux 9.x. You decide which distributions to use by going to either the Ubuntu or Rocky Linux folder and running `vagrant up`.  Currently there are issues with the Rocky Linux installation, so use the Ubuntu one for testing.
 
+This vagrant file will automatically install and configure RKE2 from the stable release branch. If you want to try and cofigure RKE2 manually, go to the vagrant file and comment out `# ....` lines 65 and 89  `cp.vm.provision "shell", path: "../scripts/linuxguests/RKE2-Server-Install.sh"` as they will otherwise install and configure RKE2 for you.
+
+If you just want a working cluster to play with ... leave them in there.  If you want to do it yourself ... run the commands from those scripts to spin up your cluster.
+
+Happy clustering!!!
 
 ## Prerequisites
 
