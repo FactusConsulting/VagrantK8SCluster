@@ -107,6 +107,7 @@ Vagrant.configure("2") do |config|
             "modifyvm", :id,
             "--paravirt-provider", "hyperv" # for linux guest
           ]
+          vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         end
         ww.vm.provision "file", source: "../resources/ww_rkeconfig.yaml", destination: "c:/etc/rancher/rke2/config.yaml"
         ww.vm.provision "shell", path: "../scripts/windowsguests/preparewindowsnode.ps1"

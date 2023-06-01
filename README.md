@@ -42,8 +42,7 @@ To start up just one of the control plane nodes:
 
 3. Windows workers
 
-It is technically possible to add windows workers to the cluster built here, and it is included in the Vagrantfile, **but it is not currently supported and there are no guarantees this setup will run**
-Thisfeature  will be tested and fixed in future versions.
+If you want to add a windows node, run  `vagrant up ww31` but ensure you have enough memory and cpu resources available.
 
 ## Detailed setup and background
 
@@ -88,6 +87,16 @@ Run this command to set the kubeconfig to this file for this powershell session 
 Try running kubectl get node and see if you can see the new nodes and wait a few minutes untill they report a ready state.
 
 When you have nodes reporting ready, you have a running cluster.
+
+### Testing the windows node
+
+The windows worker starts up with a Windows 2022 base image, so all containers running on that needs to be windows 2022 containers as the container kernel must match the base image kernel major version.  Eg. 2019->2019 and 2022->2022
+The container network defined in the Controlplane nodes have been set to Calico as this is the only RKE2 overlay network that supports Windows worker nodes.
+
+After starting the windows node, to see if windows nodes has a working network setup, you can deploy the test webserver fround in the scripts/windowsguests folder. This deploys a simple webserver listening on a nodeport on the cluster.
+Check the kubernetes service to get the nodeport. In this example  `default   win-webserver   NodePort   10.43.215.179  80►30744` the nodeport in use is `30744`.  So go to any node on the cluster and query port 30744 to get a response from the webserver.  Like this:   `http://cp11:30744`  or `http://192.168.56.31:30744`.  You should get a simple https response as defined in the deployment.
+
+Be patient with the deployment. The size of Windows Server Core containers measure in the Gb's compared to linux containers. It will take a few minutes to pull down that container image on the windows node.
 
 ### Usefull RKE2 commands
 

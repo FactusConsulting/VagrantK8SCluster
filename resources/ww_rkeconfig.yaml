@@ -1,3 +1,4 @@
 server: https://vagrantcluster:9345
 token: mysecretjointoken
 node-ip: 192.168.56.31
+node-external-ip: 192.168.56.31
