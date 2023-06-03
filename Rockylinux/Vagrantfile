@@ -89,7 +89,7 @@ Vagrant.configure("2") do |config|
             "--paravirt-provider", "hyperv"
           ]
         end
-        lw.vm.provision "file", source: "./scripts/zscalerroot.cer", destination: "~/zscalerroot.cer"
+        lw.vm.provision "file", source: "./resources/certs/zscalerroot.cer", destination: "~/zscalerroot.cer"
         lw.vm.provision "shell", inline: <<-SHELL
           cp /home/vagrant/zscalerroot.cer /etc/pki/ca-trust/source/anchors
           update-ca-trust
