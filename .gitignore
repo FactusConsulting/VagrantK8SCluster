@@ -24,3 +24,4 @@ kube_config_cluster.yml
 cluster.rkestate
 rke2kubeconfig
 Ubuntu/rke2vagrantkubeconfig
+Rockylinux/rke2vagrantkubeconfig
