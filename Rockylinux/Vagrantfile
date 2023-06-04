@@ -45,7 +45,7 @@ Vagrant.configure("2") do |config|
         cp.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_cp1#{number}"
           vb.memory = 6096
-          vb.cpus = 4
+          vb.cpus = 2
           vb.customize [
             "modifyvm", :id,
             "--paravirt-provider", "hyperv"
@@ -108,38 +108,30 @@ Vagrant.configure("2") do |config|
       end
     end  #Linuxworkers end
 
-    # WindowsWorkers
-    (1..1).each do |number|
+     # WindowsWorkers
+     (1..1).each do |number|
       config.vm.define "ww3#{number}" do |ww|
         ww.vm.box = "gusztavvargadr/windows-server-core"
-        ww.vm.box_version = "1809.0.2207"
+        #ww.vm.box_version = "1809.0.2207"
         ww.vm.communicator = "winrm"
         ww.vm.guest = "windows"
         ww.vm.hostname = "ww3#{number}"
         ww.vm.network "private_network", ip: "192.168.56.3#{number}"
-
         ww.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_ww3#{number}"
-          vb.memory = 8048
+          vb.memory = 7000
           vb.cpus = 4
           vb.customize [
             "modifyvm", :id,
             "--paravirt-provider", "hyperv" # for linux guest
           ]
+          vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         end
         ww.vm.provision "file", source: "../resources/ww_rkeconfig.yaml", destination: "c:/etc/rancher/rke2/config.yaml"
         ww.vm.provision "shell", path: "../scripts/windowsguests/preparewindowsnode.ps1"
-        ww.vm.provision "shell", inline: <<-SHELL
-             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.11 vagrantcluster"
-             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.11 cp11"
-             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.12 cp12"
-             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.13 cp13"
-             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.21 lw21"
-             Add-Content -Path c:\windows\system32\drivers\etc\hosts -Value "192.168.56.31 ww31"
-          SHELL
         ww.vm.provision :reload
         ww.vm.provision "shell", inline: hostfile_provision_script_windows
-        ww.vm.provision "shell", path: "scripts/windowsguests/RKE2-Agent-Install-Windows.ps1"
+        ww.vm.provision "shell", path: "../scripts/windowsguests/RKE2-Agent-Install-Windows.ps1"
       end
     end # Windows workers end
 
