@@ -11,6 +11,9 @@ else
   echo "This is not a Rocky Linux machine."
 fi
 
+sudo systemctl enable rke2-agent.service
+sudo systemctl start rke2-agent.service
+
 # Only copy the kubeconfig back to the host when its the cp11 server. The first controlplane
 hostname=$(hostname)
 if [ "$hostname" == "cp11" ]; then

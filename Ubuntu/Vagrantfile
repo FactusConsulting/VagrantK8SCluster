@@ -44,7 +44,7 @@ Vagrant.configure("2") do |config|
         cp.vm.hostname = "cp1#{number}"
         cp.vm.network "private_network", ip: "192.168.56.1#{number}", hostname: true
         if number != 1
-          cp.vm.synced_folder ".", "/vagrant", disabled: true
+          cp.vm.synced_folder ".", "/vagrant", disabled: false
         end
         cp.vm.provider "virtualbox" do |vb|
           vb.name = "vagrantk8s_cp1#{number}"
