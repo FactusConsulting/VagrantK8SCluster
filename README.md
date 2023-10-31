@@ -85,7 +85,6 @@ The kubeconfig file will be copied to the Ubuntu folder as rke2vagrantconfig
 Run this command to set the kubeconfig to this file for this powershell session  `$env:KUBECONFIG="rke2vagrantkubeconfig"`
 
 Try running kubectl get node and see if you can see the new nodes and wait a few minutes untill they report a ready state.
-
 When you have nodes reporting ready, you have a running cluster.
 
 ### Testing the windows node
